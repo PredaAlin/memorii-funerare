@@ -1,0 +1,8 @@
+
+{
+  "name": "Eternal Memories QR",
+  "description": "A respectful platform for creating digital memorials linked to QR-inscribed metal plates for tombstones. Users can order plates and customize the digital legacy of their loved ones with AI-assisted storytelling.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
