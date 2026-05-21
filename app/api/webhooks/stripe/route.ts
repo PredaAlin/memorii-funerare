@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
+import { sendPaymentConfirmation, sendAdminNewOrder } from '@/lib/email'
 import Stripe from 'stripe'
 
 export async function POST(req: NextRequest) {
@@ -20,21 +21,41 @@ export async function POST(req: NextRequest) {
     const orderIds = session.metadata?.orderIds?.split(',') ?? []
 
     if (orderIds.length > 0) {
-      // Mark orders as paid
       await db.order.updateMany({
         where: { id: { in: orderIds } },
         data: { status: 'paid' },
       })
 
-      // Publish the associated memorials
       const orders = await db.order.findMany({
         where: { id: { in: orderIds } },
-        select: { memorialId: true },
+        include: { memorial: true },
       })
+
       await db.memorial.updateMany({
-        where: { id: { in: orders.map((o: { memorialId: string }) => o.memorialId) } },
+        where: { id: { in: orders.map((o) => o.memorialId) } },
         data: { isPublished: true },
       })
+
+      // Send emails for each order
+      for (const order of orders) {
+        const emailData = {
+          orderId: order.id,
+          customerName: order.shippingName,
+          customerEmail: order.shippingEmail,
+          deceasedName: order.memorial.deceasedName,
+          plan: order.plan,
+          price: order.price,
+          shippingAddress: order.shippingAddress,
+          shippingCity: order.shippingCity,
+          shippingPostalCode: order.shippingPostalCode,
+          memorialId: order.memorial.id,
+          memorialUrl: `${process.env.NEXTAUTH_URL}/memorial/${order.memorial.id}`,
+        }
+        await Promise.all([
+          sendPaymentConfirmation(emailData),
+          sendAdminNewOrder(emailData),
+        ])
+      }
     }
   }
 
