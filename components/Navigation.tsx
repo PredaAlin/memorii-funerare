@@ -38,6 +38,14 @@ export function Navigation() {
             >
               My Memorials
             </Link>
+            {session.user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
+              <Link
+                href="/admin"
+                className={`text-sm font-medium ${pathname === '/admin' ? 'text-amber-700 border-b-2 border-amber-600' : 'text-amber-600 hover:text-amber-700'}`}
+              >
+                Admin
+              </Link>
+            )}
             <button
               onClick={() => signOut({ callbackUrl: '/' })}
               className="text-sm font-medium text-stone-500 hover:text-stone-800"
