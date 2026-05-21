@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { sendShippedNotification } from '@/lib/email'
+import { buildOrderEmailData, sendShippedNotification } from '@/lib/email'
 
 const VALID_STATUSES = ['pending', 'paid', 'shipped', 'delivered']
 
@@ -29,19 +29,9 @@ export async function PATCH(
   })
 
   if (status === 'shipped') {
-    await sendShippedNotification({
-      orderId: order.id,
-      customerName: order.shippingName,
-      customerEmail: order.shippingEmail,
-      deceasedName: order.memorial.deceasedName,
-      plan: order.plan,
-      price: order.price,
-      shippingAddress: order.shippingAddress,
-      shippingCity: order.shippingCity,
-      shippingPostalCode: order.shippingPostalCode,
-      memorialId: order.memorial.id,
-      memorialUrl: `${process.env.NEXTAUTH_URL}/memorial/${order.memorial.id}`,
-    })
+    sendShippedNotification(buildOrderEmailData(order)).catch((err) =>
+      console.error('Failed to send shipped notification:', err)
+    )
   }
 
   return NextResponse.json(order)

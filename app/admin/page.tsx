@@ -12,7 +12,7 @@ export default async function AdminPage() {
   }
 
   const orders = await db.order.findMany({
-    include: { memorial: true, user: true },
+    include: { memorial: true },
     orderBy: { createdAt: 'desc' },
   })
 
@@ -41,8 +41,6 @@ export default async function AdminPage() {
           {orders.map((order) => (
             <div key={order.id} className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
               <div className="p-6 flex flex-col md:flex-row gap-6">
-
-                {/* QR Code */}
                 <div className="shrink-0 flex flex-col items-center gap-2">
                   <Link href={memorialUrl(order.memorial.id)} target="_blank">
                     <div className="w-32 h-32 bg-white border border-stone-100 rounded-2xl overflow-hidden shadow-sm p-1 hover:shadow-md transition-shadow">
@@ -64,7 +62,6 @@ export default async function AdminPage() {
                   </Link>
                 </div>
 
-                {/* Details */}
                 <div className="flex-grow space-y-4">
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
@@ -78,7 +75,6 @@ export default async function AdminPage() {
                     <StatusSelect orderId={order.id} current={order.status} />
                   </div>
 
-                  {/* Customer */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm">
                     <div>
                       <span className="text-stone-400 text-xs uppercase tracking-wide font-semibold">Customer</span>

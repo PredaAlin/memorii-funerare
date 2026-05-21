@@ -19,6 +19,35 @@ type OrderEmailData = {
   memorialUrl: string
 }
 
+type OrderWithMemorial = {
+  id: string
+  shippingName: string
+  shippingEmail: string
+  plan: string
+  price: number
+  shippingAddress: string
+  shippingCity: string
+  shippingPostalCode: string
+  memorialId: string
+  memorial: { id: string; deceasedName: string }
+}
+
+export function buildOrderEmailData(order: OrderWithMemorial): OrderEmailData {
+  return {
+    orderId: order.id,
+    customerName: order.shippingName,
+    customerEmail: order.shippingEmail,
+    deceasedName: order.memorial.deceasedName,
+    plan: order.plan,
+    price: order.price,
+    shippingAddress: order.shippingAddress,
+    shippingCity: order.shippingCity,
+    shippingPostalCode: order.shippingPostalCode,
+    memorialId: order.memorial.id,
+    memorialUrl: `${BASE_URL}/memorial/${order.memorial.id}`,
+  }
+}
+
 function baseLayout(content: string) {
   return `<!DOCTYPE html>
 <html>
