@@ -73,6 +73,7 @@ model Memorial {
   videoUrls       String[]
   profilePhotoUrl String?
   bannerPhotoUrl  String?
+  theme        String   @default("clasic")
   isPublished  Boolean  @default(false)
   order        Order?
   createdAt    DateTime @default(now())

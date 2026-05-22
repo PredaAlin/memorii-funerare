@@ -1,5 +1,7 @@
 export type MemorialPlan = 'basic' | 'premium'
 
+export type MemorialThemeId = 'clasic' | 'noapte' | 'natura' | 'serenitate' | 'vintage'
+
 export interface MemorialContent {
   id: string
   deceasedName: string
@@ -12,6 +14,7 @@ export interface MemorialContent {
   bannerPhoto: string    // base64 or remote URL — dedicated cover/banner image
   quote: string
   plan: MemorialPlan
+  theme: MemorialThemeId
 }
 
 export interface ShippingInfo {

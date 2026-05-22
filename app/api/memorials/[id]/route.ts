@@ -40,6 +40,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       quote: body.quote ?? memorial.quote,
       mediaUrls: body.mediaUrls ?? memorial.mediaUrls,
       videoUrls: body.videoUrls ?? memorial.videoUrls,
+      theme: body.theme ?? memorial.theme,
     },
   })
   return NextResponse.json(updated)

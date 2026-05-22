@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { MemorialContent } from '@/types'
+import { THEMES, getTheme } from '@/lib/themes'
 
 interface MemorialEditorProps {
   initialData: MemorialContent
@@ -11,7 +12,7 @@ interface MemorialEditorProps {
 
 export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onSave, onCancel }) => {
   const [data, setData] = useState<MemorialContent>(initialData)
-  const [activeTab, setActiveTab] = useState<'details' | 'media' | 'videos'>('details')
+  const [activeTab, setActiveTab] = useState<'details' | 'tema' | 'media' | 'videos'>('details')
 
   const maxStorage = data.plan === 'premium' ? 300 : 100
   const currentSize = (data.media.length * 2) + (data.videos.length * 15)
@@ -68,7 +69,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
       </div>
 
       <div className="flex border-b border-stone-100 overflow-x-auto no-scrollbar">
-        {(['details', 'media', 'videos'] as const).map(tab => (
+        {(['details', 'tema', 'media', 'videos'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => {
@@ -83,7 +84,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
             } ${tab === 'videos' && data.plan === 'basic' ? 'opacity-30' : ''}`}
           >
             {tab === 'videos' && <span className="mr-1">📹</span>}
-            {tab === 'details' ? 'detalii' : tab === 'media' ? 'media' : 'videoclipuri'}
+            {tab === 'details' ? 'detalii' : tab === 'tema' ? 'temă' : tab === 'media' ? 'media' : 'videoclipuri'}
           </button>
         ))}
       </div>
@@ -164,6 +165,85 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
             <div>
               <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Biografie</label>
               <textarea value={data.bio} onChange={e => setData({ ...data, bio: e.target.value })} className="w-full h-[245px] px-4 py-3 rounded-xl border border-stone-200 outline-none transition-all resize-none" placeholder="Povestește-le viața..." />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'tema' && (
+          <div>
+            <p className="text-xs font-bold text-stone-500 uppercase tracking-widest mb-6">Alege o temă vizuală pentru pagina memorială</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+              {THEMES.map(theme => {
+                const c = theme.colors
+                const selected = (data.theme ?? 'clasic') === theme.id
+                return (
+                  <button
+                    key={theme.id}
+                    onClick={() => setData(prev => ({ ...prev, theme: theme.id }))}
+                    className="text-left rounded-2xl overflow-hidden transition-all focus:outline-none"
+                    style={{
+                      border: selected ? `2px solid ${c.tabActive}` : '2px solid #e7e5e4',
+                      boxShadow: selected ? `0 0 0 2px ${c.tabActive}` : undefined,
+                    }}
+                  >
+                    {/* Mini cover simulation */}
+                    <div style={{ height: 44, position: 'relative', background: 'linear-gradient(135deg, #aaa 0%, #777 100%)', overflow: 'hidden' }}>
+                      <div style={{ position: 'absolute', inset: 0, background: c.coverOverlay }} />
+                      {/* Simulated profile circle */}
+                      <div style={{
+                        position: 'absolute', bottom: -10, left: 10,
+                        width: 24, height: 24, borderRadius: '50%',
+                        background: c.bg, border: `2px solid ${c.profileRing}`,
+                      }} />
+                    </div>
+
+                    {/* Content preview */}
+                    <div style={{ background: c.bg, padding: '16px 10px 8px' }}>
+                      {/* Simulated name */}
+                      <div style={{ height: 5, background: c.text, borderRadius: 3, width: '75%', marginBottom: 4 }} />
+                      {/* Simulated date */}
+                      <div style={{ height: 3, background: c.textMuted, borderRadius: 2, width: '55%', marginBottom: 8 }} />
+                      {/* Simulated divider */}
+                      <div style={{ height: 1, background: c.border, marginBottom: 6 }} />
+                      {/* Simulated text lines */}
+                      <div style={{ height: 3, background: c.textMuted, borderRadius: 2, marginBottom: 3 }} />
+                      <div style={{ height: 3, background: c.textMuted, borderRadius: 2, width: '80%', marginBottom: 3 }} />
+                      <div style={{ height: 3, background: c.textMuted, borderRadius: 2, width: '60%' }} />
+                    </div>
+
+                    {/* Theme name footer */}
+                    <div style={{
+                      background: c.bg,
+                      borderTop: `1px solid ${c.border}`,
+                      padding: '6px 10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                      <span style={{
+                        fontSize: 9,
+                        fontWeight: 700,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        color: c.text,
+                      }}>
+                        {theme.name}
+                      </span>
+                      {selected && (
+                        <div style={{
+                          width: 14, height: 14, borderRadius: '50%',
+                          background: c.tabActive,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                            <path d="M1.5 4L3.5 6L6.5 2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}

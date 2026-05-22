@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
         bio: item.memorialData.bio || null,
         quote: item.memorialData.quote || null,
         plan: item.memorialData.plan,
+        theme: item.memorialData.theme ?? 'clasic',
         mediaUrls,
         videoUrls,
         profilePhotoUrl,
