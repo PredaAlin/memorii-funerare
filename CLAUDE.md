@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm install           # Install dependencies
 npm run dev           # Start dev server at http://localhost:3000
-npm run build         # Type-check + production build
+npm run build         # prisma generate + type-check + production build
 npm run start         # Run production server
 npm run db:push       # Apply schema to database (requires DATABASE_URL)
 npm run db:studio     # Open Prisma Studio GUI
@@ -74,7 +74,7 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 - `app/layout.tsx` — Root layout with `Providers` (SessionProvider + CartProvider), Navigation, and footer. Uses `next/font/google` for Cinzel + Inter.
 - `contexts/CartContext.tsx` — Cart state, shipping info, validation logic, localStorage sync
 - `components/Providers.tsx` — Client wrapper for NextAuth + Cart providers
-- `components/Navigation.tsx` — Hides on `/memorial/*` routes. Shows Admin link only when `session.user.email === NEXT_PUBLIC_ADMIN_EMAIL`
+- `components/Navigation.tsx` — Hides on `/memorial/*` routes. Shows Admin link only when `session.user.email === NEXT_PUBLIC_ADMIN_EMAIL`. Responsive: full link row on `md+`, hamburger dropdown on mobile.
 - `components/PricingSection.tsx` — Client component for "Add to Cart" buttons (only interactive part of home page)
 - `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs
 - `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page); applies theme via inline styles
@@ -170,7 +170,7 @@ This project was originally a single-file Vite + React app (`index.tsx` + `index
 
 ## Known gotchas
 
-**Prisma client must be generated before building.** Running `next build` without first running `prisma generate` fails with `@prisma/client did not initialize yet`. This happens any time `prisma/schema.prisma` is changed. Run `npm run db:generate` after every schema change.
+**Prisma client must be generated before building.** The `build` script runs `prisma generate && next build` so Vercel always gets fresh types. Locally, run `npm run db:generate` after every schema change before starting the dev server — the dev server that was running at schema-change time holds the `.node` binary and prevents the rename; stop it first.
 
 **Do not import Prisma types directly from `@prisma/client` in page/component files.** The generated types are only reliably available after `prisma generate`. Use `Awaited<ReturnType<typeof db.model.findFirst>>` to infer types instead — see `app/dashboard/page.tsx` for the pattern.
 
