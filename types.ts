@@ -6,8 +6,10 @@ export interface MemorialContent {
   birthDate: string
   deathDate: string
   bio: string
-  media: string[]   // base64 data URLs (client) or remote URLs (after upload)
-  videos: string[]  // base64 data URLs (client) or remote URLs (after upload)
+  media: string[]        // base64 data URLs (client) or remote URLs (after upload)
+  videos: string[]       // base64 data URLs (client) or remote URLs (after upload)
+  profilePhoto: string   // base64 or remote URL — dedicated profile picture
+  bannerPhoto: string    // base64 or remote URL — dedicated cover/banner image
   quote: string
   plan: MemorialPlan
 }

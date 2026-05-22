@@ -61,7 +61,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       isConfigured: false,
       memorialData: {
         id: '', deceasedName: '', birthDate: '', deathDate: '',
-        bio: '', media: [], videos: [], quote: '', plan,
+        bio: '', media: [], videos: [], profilePhoto: '', bannerPhoto: '', quote: '', plan,
       },
     }
     setCart(prev => [...prev, newItem])

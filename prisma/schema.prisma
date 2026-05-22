@@ -69,8 +69,10 @@ model Memorial {
   bio          String?  @db.Text
   quote        String?
   plan         String   // 'basic' | 'premium'
-  mediaUrls    String[]
-  videoUrls    String[]
+  mediaUrls       String[]
+  videoUrls       String[]
+  profilePhotoUrl String?
+  bannerPhotoUrl  String?
   isPublished  Boolean  @default(false)
   order        Order?
   createdAt    DateTime @default(now())

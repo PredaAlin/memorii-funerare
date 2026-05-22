@@ -34,8 +34,8 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
         <div className="flex-grow overflow-y-auto scroll-smooth bg-white no-scrollbar">
           {/* Cover Photo */}
           <div className="h-32 w-full bg-stone-200 overflow-hidden relative">
-            {data.media.length > 0 ? (
-              <img src={data.media[0]} className="w-full h-full object-cover grayscale-[30%]" alt="Cover" />
+            {(data.bannerPhoto || data.media[0]) ? (
+              <img src={data.bannerPhoto || data.media[0]} className="w-full h-full object-cover grayscale-[30%]" alt="Cover" />
             ) : (
               <div className="w-full h-full bg-stone-200" />
             )}
@@ -44,7 +44,7 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
 
           <div className="px-5 -mt-8 relative z-10">
             <div className="w-16 h-16 bg-white rounded-full p-1 shadow-lg border-2 border-amber-100 overflow-hidden mb-3">
-              <img src={data.media[0] || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop"} className="w-full h-full object-cover rounded-full" />
+              <img src={data.profilePhoto || data.media[0] || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop"} className="w-full h-full object-cover rounded-full" />
             </div>
             <h3 className="text-md font-bold text-stone-800 serif uppercase tracking-widest">{data.deceasedName || "Nume Complet"}</h3>
             <div className="flex items-center gap-2 mt-1 text-stone-500 text-[8px] font-bold uppercase tracking-tighter">

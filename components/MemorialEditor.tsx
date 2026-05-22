@@ -92,6 +92,56 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
         {activeTab === 'details' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Fotografie Profil</label>
+                  <label className="relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl border-2 border-dashed border-stone-200 cursor-pointer hover:bg-stone-50 transition-all group overflow-hidden">
+                    <input type="file" className="hidden" accept="image/*" onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      const reader = new FileReader()
+                      reader.onloadend = () => setData(prev => ({ ...prev, profilePhoto: reader.result as string }))
+                      reader.readAsDataURL(file)
+                    }} />
+                    {data.profilePhoto ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={data.profilePhoto} className="absolute inset-0 w-full h-full object-cover" alt="" />
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-white uppercase tracking-widest">Schimbă</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-8 h-8 text-stone-300 group-hover:text-amber-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        <span className="text-[10px] font-bold text-stone-400">ADAUGĂ</span>
+                      </>
+                    )}
+                  </label>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Fotografie Copertă</label>
+                  <label className="relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl border-2 border-dashed border-stone-200 cursor-pointer hover:bg-stone-50 transition-all group overflow-hidden">
+                    <input type="file" className="hidden" accept="image/*" onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      const reader = new FileReader()
+                      reader.onloadend = () => setData(prev => ({ ...prev, bannerPhoto: reader.result as string }))
+                      reader.readAsDataURL(file)
+                    }} />
+                    {data.bannerPhoto ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={data.bannerPhoto} className="absolute inset-0 w-full h-full object-cover" alt="" />
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-white uppercase tracking-widest">Schimbă</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-8 h-8 text-stone-300 group-hover:text-amber-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span className="text-[10px] font-bold text-stone-400">ADAUGĂ</span>
+                      </>
+                    )}
+                  </label>
+                </div>
+              </div>
               <div>
                 <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Nume Complet</label>
                 <input type="text" value={data.deceasedName} onChange={e => setData({ ...data, deceasedName: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
@@ -166,7 +216,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
 
       <div className="bg-stone-50 p-6 flex justify-end gap-4 border-t border-stone-100">
         <button onClick={onCancel} className="px-6 py-3 text-stone-500 font-bold hover:text-stone-800 transition-colors">Anulare</button>
-        <button onClick={() => onSave(data)} className="px-10 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md active:scale-95">Salvează Memoriu</button>
+        <button onClick={() => onSave(data)} className="px-10 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md active:scale-95">Salvează Memorial</button>
       </div>
     </div>
   )

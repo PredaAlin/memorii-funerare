@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
   for (const item of cart) {
     const mediaUrls = await Promise.all(item.memorialData.media.map(m => uploadIfBase64(m, 'media')))
     const videoUrls = await Promise.all(item.memorialData.videos.map(v => uploadIfBase64(v, 'videos')))
+    const profilePhotoUrl = item.memorialData.profilePhoto ? await uploadIfBase64(item.memorialData.profilePhoto, 'media') : null
+    const bannerPhotoUrl = item.memorialData.bannerPhoto ? await uploadIfBase64(item.memorialData.bannerPhoto, 'media') : null
 
     const memorial = await db.memorial.create({
       data: {
@@ -47,6 +49,8 @@ export async function POST(req: NextRequest) {
         plan: item.memorialData.plan,
         mediaUrls,
         videoUrls,
+        profilePhotoUrl,
+        bannerPhotoUrl,
         isPublished: false,
       },
     })

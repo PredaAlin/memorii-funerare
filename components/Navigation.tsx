@@ -36,7 +36,7 @@ export function Navigation() {
               href="/dashboard"
               className={`text-sm font-medium ${pathname === '/dashboard' ? 'text-stone-900 border-b-2 border-stone-800' : 'text-stone-500 hover:text-stone-800'}`}
             >
-              Memoriile mele
+              Memorialele mele
             </Link>
             {session.user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
               <Link

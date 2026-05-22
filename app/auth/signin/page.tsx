@@ -62,7 +62,7 @@ function SignInContent() {
             {mode === 'signin' ? 'Bine ai revenit' : 'Creează cont'}
           </h1>
           <p className="text-stone-500 mt-2">
-            {mode === 'signin' ? 'Autentifică-te pentru a-ți gestiona memoriile.' : 'Începe să păstrezi amintiri astăzi.'}
+            {mode === 'signin' ? 'Autentifică-te pentru a-ți gestiona memorialele.' : 'Începe să păstrezi amintiri astăzi.'}
           </p>
         </div>
 

@@ -6,6 +6,8 @@ interface MemorialData {
   quote: string | null
   mediaUrls: string[]
   videoUrls: string[]
+  profilePhotoUrl?: string | null
+  bannerPhotoUrl?: string | null
   id: string
 }
 
@@ -19,7 +21,8 @@ function formatDate(dateString: string | null) {
 }
 
 export function MemorialView({ memorial }: MemorialViewProps) {
-  const coverPhoto = memorial.mediaUrls[0]
+  const coverPhoto = memorial.bannerPhotoUrl || memorial.mediaUrls[0]
+  const profilePhoto = memorial.profilePhotoUrl || memorial.mediaUrls[0]
 
   return (
     <div className="min-h-screen bg-white">
@@ -39,7 +42,7 @@ export function MemorialView({ memorial }: MemorialViewProps) {
         <div className="w-24 h-24 bg-white rounded-full p-1 shadow-xl border-2 border-amber-100 overflow-hidden mb-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={coverPhoto || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop'}
+            src={profilePhoto || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop'}
             className="w-full h-full object-cover rounded-full"
             alt={memorial.deceasedName}
           />
