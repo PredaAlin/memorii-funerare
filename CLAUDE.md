@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm install           # Install dependencies
+npm install           # Install dependencies — also runs prisma generate (postinstall)
 npm run dev           # Start dev server at http://localhost:3000
 npm run build         # prisma generate + type-check + production build
 npm run start         # Run production server
@@ -170,7 +170,7 @@ This project was originally a single-file Vite + React app (`index.tsx` + `index
 
 ## Known gotchas
 
-**Prisma client must be generated before building.** The `build` script runs `prisma generate && next build` so Vercel always gets fresh types. Locally, run `npm run db:generate` after every schema change before starting the dev server — the dev server that was running at schema-change time holds the `.node` binary and prevents the rename; stop it first.
+**Prisma client must be generated before building.** A `postinstall` script runs `prisma generate` after every `npm install`, and the `build` script runs it again explicitly. Both are needed: Vercel calls `next build` directly (bypassing the `build` script), so only `postinstall` guarantees fresh types there. Locally, run `npm run db:generate` after every schema change — but stop the dev server first, since it holds the `.node` binary and the rename will fail with `EPERM` while it is running.
 
 **Do not import Prisma types directly from `@prisma/client` in page/component files.** The generated types are only reliably available after `prisma generate`. Use `Awaited<ReturnType<typeof db.model.findFirst>>` to infer types instead — see `app/dashboard/page.tsx` for the pattern.
 
