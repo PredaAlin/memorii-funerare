@@ -32,8 +32,19 @@ All env vars live in `.env.local` (Next.js) and `.env` (Prisma CLI). Both files 
 | `ADMIN_EMAIL` | Server-side admin gate | hardcoded to `alinpreda0711@gmail.com` |
 | `NEXT_PUBLIC_ADMIN_EMAIL` | Client-side nav link visibility | same value as `ADMIN_EMAIL` |
 | `RESEND_API_KEY` | Transactional email | resend.com dashboard |
+| `GOOGLE_CLIENT_ID` | Google OAuth | Google Cloud Console → APIs & Services → Credentials |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth | Google Cloud Console → APIs & Services → Credentials |
 
 After setting `DATABASE_URL`, run `npm run db:push` to create tables, then `npm run db:generate` to (re)generate the Prisma client.
+
+### Google OAuth setup
+
+Create credentials at Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID (Web application). Add these **Authorized redirect URIs**:
+
+- `http://localhost:3000/api/auth/callback/google` (local)
+- `https://memorii-funerare.vercel.app/api/auth/callback/google` (production)
+
+Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in both `.env.local` and Vercel env vars. Restart dev server after adding locally.
 
 ### Local webhook testing
 
@@ -80,8 +91,9 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 - `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page); applies theme via inline styles
 - `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview`); applies theme via inline styles
 - `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Five themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
-- `app/admin/page.tsx` — Admin console: all orders, QR codes, shipping info
-- `app/admin/StatusSelect.tsx` — Client component dropdown to update order status in place
+- `app/admin/page.tsx` — Thin server shell: auth check, DB fetch, date serialization, renders `AdminDashboard`
+- `app/admin/AdminDashboard.tsx` — Client component: period filter (Azi/Această lună/Acest an/Toate), 4 stat cards (revenue, total, de expediat, livrate), status filter pills, filtered orders list. Stats update live when status changes.
+- `app/admin/StatusSelect.tsx` — Client component dropdown to update order status in place; accepts optional `onChange` callback so parent dashboard can sync stats
 - `lib/auth.ts` — NextAuth v4 config (JWT strategy, credentials provider)
 - `lib/db.ts` — Prisma singleton (global pattern to avoid connection leaks in dev)
 - `lib/stripe.ts` — Lazy Stripe client (`getStripe()` function, not module-level constant)
@@ -173,6 +185,8 @@ This project was originally a single-file Vite + React app (`index.tsx` + `index
 **Prisma client must be generated before building.** A `postinstall` script runs `prisma generate` after every `npm install`, and the `build` script runs it again explicitly. Both are needed: Vercel calls `next build` directly (bypassing the `build` script), so only `postinstall` guarantees fresh types there. Locally, run `npm run db:generate` after every schema change — but stop the dev server first, since it holds the `.node` binary and the rename will fail with `EPERM` while it is running.
 
 **Do not import Prisma types directly from `@prisma/client` in page/component files.** The generated types are only reliably available after `prisma generate`. Use `Awaited<ReturnType<typeof db.model.findFirst>>` to infer types instead — see `app/dashboard/page.tsx` for the pattern.
+
+**Serialize Dates before passing from server to client components.** Prisma returns `Date` objects; Next.js serializes them to ISO strings when crossing the server→client boundary. Define client-side interfaces with `createdAt: string` and call `.toISOString()` in the server component before passing. See `app/admin/page.tsx` for the pattern.
 
 **Stripe client must stay lazy.** `lib/stripe.ts` exports `getStripe()` (a function), not a `stripe` constant. A module-level `new Stripe(...)` causes `next build` to fail during the "collecting page data" phase when `STRIPE_SECRET_KEY` is not set, because Next.js imports all route modules at build time. Always call `getStripe()` inside route handlers.
 
