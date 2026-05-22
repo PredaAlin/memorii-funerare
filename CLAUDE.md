@@ -76,16 +76,17 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 - `components/Providers.tsx` — Client wrapper for NextAuth + Cart providers
 - `components/Navigation.tsx` — Hides on `/memorial/*` routes. Shows Admin link only when `session.user.email === NEXT_PUBLIC_ADMIN_EMAIL`
 - `components/PricingSection.tsx` — Client component for "Add to Cart" buttons (only interactive part of home page)
-- `components/MemorialEditor.tsx` — Tabbed editor with Details, Media, and Videos tabs
-- `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page)
-- `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview`)
+- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs
+- `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page); applies theme via inline styles
+- `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview`); applies theme via inline styles
+- `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Five themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
 - `app/admin/page.tsx` — Admin console: all orders, QR codes, shipping info
 - `app/admin/StatusSelect.tsx` — Client component dropdown to update order status in place
 - `lib/auth.ts` — NextAuth v4 config (JWT strategy, credentials provider)
 - `lib/db.ts` — Prisma singleton (global pattern to avoid connection leaks in dev)
 - `lib/stripe.ts` — Lazy Stripe client (`getStripe()` function, not module-level constant)
 - `lib/email.ts` — Resend email helpers: `sendPaymentConfirmation`, `sendAdminNewOrder`, `sendShippedNotification`, `buildOrderEmailData`
-- `prisma/schema.prisma` — `User`, `Memorial`, `Order` + NextAuth tables (`Account`, `Session`, `VerificationToken`)
+- `prisma/schema.prisma` — `User`, `Memorial`, `Order` + NextAuth tables (`Account`, `Session`, `VerificationToken`). `Memorial` has a `theme String @default("clasic")` field.
 - `types/next-auth.d.ts` — Adds `user.id` to the NextAuth Session type
 
 ### API routes
@@ -138,6 +139,20 @@ The cart validates that all memorial pages are configured before allowing checko
 - **Premium** ($89.99) — photos + videos, 300MB simulated storage, lifetime hosting
 
 Prices are defined in `contexts/CartContext.tsx` (`PRICES` constant).
+
+### Themes
+
+Memorial pages support five visual themes selectable in the editor's "Temă" tab:
+
+| ID | Name | Character |
+|---|---|---|
+| `clasic` | Clasic | White background, stone/amber palette (default) |
+| `noapte` | Noapte | Dark slate, gold accents |
+| `natura` | Natură | Warm off-white, sage green |
+| `serenitate` | Serenitate | Light blue, deep navy text |
+| `vintage` | Vintage | Warm cream/parchment, terracotta accents |
+
+Themes are implemented as inline CSS styles (not Tailwind classes) so all color variants are available at runtime without a Tailwind purge concern. The `theme` value is stored in `MemorialContent.theme` (cart/editor), persisted to `Memorial.theme` in the DB, and read by both `MemorialPreview` and `MemorialView` via `getTheme()` from `lib/themes.ts`. To add a new theme, add an entry to the `THEMES` array in `lib/themes.ts` — no other changes needed.
 
 ## Deployment
 
