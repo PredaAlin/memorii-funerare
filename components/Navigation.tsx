@@ -27,8 +27,8 @@ export function Navigation() {
           href="/"
           className={`text-sm font-medium ${pathname === '/' ? 'text-stone-900 border-b-2 border-stone-800' : 'text-stone-500 hover:text-stone-800'}`}
         >
-          Home
-        </Link>
+          Acasă
+</Link>
 
         {session ? (
           <>
@@ -36,7 +36,7 @@ export function Navigation() {
               href="/dashboard"
               className={`text-sm font-medium ${pathname === '/dashboard' ? 'text-stone-900 border-b-2 border-stone-800' : 'text-stone-500 hover:text-stone-800'}`}
             >
-              My Memorials
+              Memoriile mele
             </Link>
             {session.user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
               <Link
@@ -50,12 +50,12 @@ export function Navigation() {
               onClick={() => signOut({ callbackUrl: '/' })}
               className="text-sm font-medium text-stone-500 hover:text-stone-800"
             >
-              Sign Out
+              Deconectare
             </button>
           </>
         ) : (
           <Link href="/auth/signin" className="text-sm font-medium text-stone-500 hover:text-stone-800">
-            Sign In
+            Autentificare
           </Link>
         )}
 
@@ -72,7 +72,7 @@ export function Navigation() {
               {cart.length}
             </span>
           )}
-          <span className="text-sm font-medium text-stone-700">Cart</span>
+          <span className="text-sm font-medium text-stone-700">Coș</span>
         </Link>
       </div>
     </nav>

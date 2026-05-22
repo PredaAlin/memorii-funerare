@@ -21,7 +21,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
     const files = e.target.files
     if (!files) return
     if (currentSize >= maxStorage) {
-      alert('Storage limit reached for this plan.')
+      alert('Limita de stocare pentru acest plan a fost atinsă.')
       return
     }
     Array.from(files).forEach(file => {
@@ -49,7 +49,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
     <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden max-w-4xl w-full">
       <div className="bg-stone-900 text-white p-8 flex justify-between items-start">
         <div>
-          <h2 className="text-3xl serif">Memorial Designer</h2>
+          <h2 className="text-3xl serif">Designer Memorial</h2>
           <div className="flex items-center gap-3 mt-2">
             <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${data.plan === 'premium' ? 'bg-amber-600' : 'bg-stone-700 text-stone-300'}`}>
               {data.plan} Plan
@@ -73,7 +73,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
             key={tab}
             onClick={() => {
               if (tab === 'videos' && data.plan === 'basic') {
-                alert('Videos are only available in Premium plans.')
+                alert('Videoclipurile sunt disponibile doar în planurile Premium.')
                 return
               }
               setActiveTab(tab)
@@ -83,7 +83,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
             } ${tab === 'videos' && data.plan === 'basic' ? 'opacity-30' : ''}`}
           >
             {tab === 'videos' && <span className="mr-1">📹</span>}
-            {tab}
+            {tab === 'details' ? 'detalii' : tab === 'media' ? 'media' : 'videoclipuri'}
           </button>
         ))}
       </div>
@@ -93,27 +93,27 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Full Name</label>
+                <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Nume Complet</label>
                 <input type="text" value={data.deceasedName} onChange={e => setData({ ...data, deceasedName: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Sunrise</label>
+                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Răsărit</label>
                   <input type="date" value={data.birthDate} onChange={e => setData({ ...data, birthDate: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Sunset</label>
+                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Apus</label>
                   <input type="date" value={data.deathDate} onChange={e => setData({ ...data, deathDate: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 outline-none" />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Favorite Quote</label>
-                <input type="text" value={data.quote} onChange={e => setData({ ...data, quote: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 outline-none" placeholder='"A life well lived..."' />
+                <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Citat Preferat</label>
+                <input type="text" value={data.quote} onChange={e => setData({ ...data, quote: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 outline-none" placeholder='"O viață bine trăită..."' />
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Biography</label>
-              <textarea value={data.bio} onChange={e => setData({ ...data, bio: e.target.value })} className="w-full h-[245px] px-4 py-3 rounded-xl border border-stone-200 outline-none transition-all resize-none" placeholder="Share their story..." />
+              <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Biografie</label>
+              <textarea value={data.bio} onChange={e => setData({ ...data, bio: e.target.value })} className="w-full h-[245px] px-4 py-3 rounded-xl border border-stone-200 outline-none transition-all resize-none" placeholder="Povestește-le viața..." />
             </div>
           </div>
         )}
@@ -124,7 +124,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
               <label className="aspect-square border-2 border-dashed border-stone-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-stone-50 transition-all group">
                 <input type="file" multiple className="hidden" onChange={e => handleFileUpload(e, 'image')} accept="image/*" />
                 <svg className="w-8 h-8 text-stone-300 group-hover:text-amber-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
-                <span className="text-[10px] font-bold text-stone-400">ADD PHOTO</span>
+                <span className="text-[10px] font-bold text-stone-400">ADAUGĂ FOTO</span>
               </label>
               {data.media.map((url, i) => (
                 <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group border border-stone-100 shadow-sm">
@@ -145,7 +145,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
               <label className="aspect-square border-2 border-dashed border-stone-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-stone-50 transition-all group">
                 <input type="file" multiple className="hidden" onChange={e => handleFileUpload(e, 'video')} accept="video/*" />
                 <svg className="w-8 h-8 text-stone-300 group-hover:text-amber-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                <span className="text-[10px] font-bold text-stone-400">ADD VIDEO</span>
+                <span className="text-[10px] font-bold text-stone-400">ADAUGĂ VIDEO</span>
               </label>
               {data.videos.map((url, i) => (
                 <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group border border-stone-100 shadow-sm bg-stone-900">
@@ -165,8 +165,8 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
       </div>
 
       <div className="bg-stone-50 p-6 flex justify-end gap-4 border-t border-stone-100">
-        <button onClick={onCancel} className="px-6 py-3 text-stone-500 font-bold hover:text-stone-800 transition-colors">Cancel</button>
-        <button onClick={() => onSave(data)} className="px-10 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md active:scale-95">Save Memorial</button>
+        <button onClick={onCancel} className="px-6 py-3 text-stone-500 font-bold hover:text-stone-800 transition-colors">Anulare</button>
+        <button onClick={() => onSave(data)} className="px-10 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md active:scale-95">Salvează Memoriu</button>
       </div>
     </div>
   )

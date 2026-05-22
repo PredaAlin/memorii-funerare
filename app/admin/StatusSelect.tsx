@@ -4,6 +4,13 @@ import { useState } from 'react'
 
 const STATUSES = ['pending', 'paid', 'shipped', 'delivered']
 
+const statusLabel: Record<string, string> = {
+  pending: 'în așteptare',
+  paid: 'plătit',
+  shipped: 'expediat',
+  delivered: 'livrat',
+}
+
 const statusColor: Record<string, string> = {
   pending: 'bg-amber-50 text-amber-700 border-amber-200',
   paid: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -49,10 +56,10 @@ export default function StatusSelect({ orderId, current }: { orderId: string; cu
         className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border cursor-pointer disabled:opacity-50 ${statusColor[status] || 'bg-stone-50 text-stone-500 border-stone-200'}`}
       >
         {STATUSES.map((s) => (
-          <option key={s} value={s}>{s}</option>
+          <option key={s} value={s}>{statusLabel[s] || s}</option>
         ))}
       </select>
-      {error && <p className="text-[10px] text-red-500">Failed to save</p>}
+      {error && <p className="text-[10px] text-red-500">Salvare eșuată</p>}
     </div>
   )
 }

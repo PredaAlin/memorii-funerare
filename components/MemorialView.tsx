@@ -15,7 +15,7 @@ interface MemorialViewProps {
 
 function formatDate(dateString: string | null) {
   if (!dateString) return '...'
-  return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  return new Date(dateString).toLocaleDateString('ro-RO', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 export function MemorialView({ memorial }: MemorialViewProps) {
@@ -62,7 +62,7 @@ export function MemorialView({ memorial }: MemorialViewProps) {
         {/* Biography */}
         {memorial.bio && (
           <div className="mb-10">
-            <h2 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3 border-b border-stone-100 pb-2">Biography</h2>
+            <h2 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3 border-b border-stone-100 pb-2">Biografie</h2>
             <p className="text-stone-700 leading-relaxed whitespace-pre-wrap">{memorial.bio}</p>
           </div>
         )}
@@ -70,7 +70,7 @@ export function MemorialView({ memorial }: MemorialViewProps) {
         {/* Gallery */}
         {memorial.mediaUrls.length > 0 && (
           <div className="mb-10">
-            <h2 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3 border-b border-stone-100 pb-2">Gallery</h2>
+            <h2 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3 border-b border-stone-100 pb-2">Galerie</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {memorial.mediaUrls.map((url, i) => (
                 <div key={i} className="aspect-square rounded-xl overflow-hidden bg-stone-100">
@@ -85,7 +85,7 @@ export function MemorialView({ memorial }: MemorialViewProps) {
         {/* Videos */}
         {memorial.videoUrls.length > 0 && (
           <div>
-            <h2 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3 border-b border-stone-100 pb-2">Videos</h2>
+            <h2 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3 border-b border-stone-100 pb-2">Videoclipuri</h2>
             <div className="space-y-4">
               {memorial.videoUrls.map((url, i) => (
                 <div key={i} className="rounded-xl overflow-hidden bg-stone-900 shadow-lg">

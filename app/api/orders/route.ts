@@ -84,13 +84,16 @@ export async function POST(req: NextRequest) {
     quantity: 1,
   }))
 
+  const baseUrl = process.env.NEXTAUTH_URL
+  if (!baseUrl) throw new Error('NEXTAUTH_URL is not set')
+
   const stripeSession = await getStripe().checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: lineItems,
     mode: 'payment',
     customer_email: shippingInfo.email,
-    success_url: `${process.env.NEXTAUTH_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXTAUTH_URL}/cart`,
+    success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}/cart`,
     metadata: { orderIds: orderIds.join(',') },
   })
 

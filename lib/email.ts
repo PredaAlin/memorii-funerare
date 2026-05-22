@@ -70,78 +70,78 @@ function baseLayout(content: string) {
 
 export async function sendPaymentConfirmation(data: OrderEmailData) {
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Order Confirmed</h1>
-    <p style="margin:0 0 24px;color:#78716c;font-size:15px;font-family:Arial,sans-serif">Thank you, ${data.customerName}. Your memorial plate is being prepared.</p>
+    <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Comandă Confirmată</h1>
+    <p style="margin:0 0 24px;color:#78716c;font-size:15px;font-family:Arial,sans-serif">Mulțumim, ${data.customerName}. Placa ta memorială este în curs de pregătire.</p>
 
     <div style="background:#f5f4f0;border-radius:12px;padding:20px 24px;margin-bottom:24px">
-      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Memorial for</p>
+      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Memorial pentru</p>
       <p style="margin:0 0 16px;font-size:18px;color:#1c1917;font-weight:bold">${data.deceasedName}</p>
       <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Plan</p>
-      <p style="margin:0 0 16px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Premium Legacy' : 'Basic Memorial'} — $${data.price.toFixed(2)}</p>
-      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Shipping to</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'} — $${data.price.toFixed(2)}</p>
+      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Livrare către</p>
       <p style="margin:0;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.shippingAddress}, ${data.shippingCity}, ${data.shippingPostalCode}</p>
     </div>
 
-    <p style="margin:0 0 16px;color:#57534e;font-size:14px;font-family:Arial,sans-serif">Your memorial page is now live. You can view and share it at any time:</p>
-    <a href="${data.memorialUrl}" style="display:inline-block;background:#1c1917;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:14px;font-family:Arial,sans-serif;font-weight:bold">View Memorial Page</a>
+    <p style="margin:0 0 16px;color:#57534e;font-size:14px;font-family:Arial,sans-serif">Pagina ta memorială este acum activă. O poți vizualiza și distribui oricând:</p>
+    <a href="${data.memorialUrl}" style="display:inline-block;background:#1c1917;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:14px;font-family:Arial,sans-serif;font-weight:bold">Vezi Pagina Memorială</a>
 
-    <p style="margin:32px 0 0;color:#a8a29e;font-size:12px;font-family:Arial,sans-serif">Order #${data.orderId.slice(-8).toUpperCase()}</p>
+    <p style="margin:32px 0 0;color:#a8a29e;font-size:12px;font-family:Arial,sans-serif">Comandă #${data.orderId.slice(-8).toUpperCase()}</p>
   `
   await resend.emails.send({
     from: FROM,
     to: data.customerEmail,
-    subject: `Your memorial order is confirmed — ${data.deceasedName}`,
+    subject: `Comanda ta memorială este confirmată — ${data.deceasedName}`,
     html: baseLayout(content),
   })
 }
 
 export async function sendAdminNewOrder(data: OrderEmailData) {
   const content = `
-    <h1 style="margin:0 0 8px;font-size:22px;color:#1c1917">New Order Received</h1>
-    <p style="margin:0 0 24px;color:#78716c;font-size:14px;font-family:Arial,sans-serif">Order #${data.orderId.slice(-8).toUpperCase()} — $${data.price.toFixed(2)}</p>
+    <h1 style="margin:0 0 8px;font-size:22px;color:#1c1917">Comandă Nouă Primită</h1>
+    <p style="margin:0 0 24px;color:#78716c;font-size:14px;font-family:Arial,sans-serif">Comandă #${data.orderId.slice(-8).toUpperCase()} — $${data.price.toFixed(2)}</p>
 
     <div style="background:#f5f4f0;border-radius:12px;padding:20px 24px;margin-bottom:16px">
-      <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Customer</p>
+      <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Client</p>
       <p style="margin:0 0 2px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.customerName}</p>
       <p style="margin:0 0 16px;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.customerEmail}</p>
 
       <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Memorial</p>
       <p style="margin:0 0 2px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.deceasedName}</p>
-      <p style="margin:0 0 16px;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Premium Legacy' : 'Basic Memorial'}</p>
+      <p style="margin:0 0 16px;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'}</p>
 
-      <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Ship to</p>
+      <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Livrare către</p>
       <p style="margin:0;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.shippingAddress}, ${data.shippingCity}, ${data.shippingPostalCode}</p>
     </div>
 
-    <a href="${BASE_URL}/admin" style="display:inline-block;background:#1c1917;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:14px;font-family:Arial,sans-serif;font-weight:bold">View in Admin</a>
+    <a href="${BASE_URL}/admin" style="display:inline-block;background:#1c1917;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:14px;font-family:Arial,sans-serif;font-weight:bold">Vezi în Admin</a>
   `
   await resend.emails.send({
     from: FROM,
     to: ADMIN_EMAIL,
-    subject: `New order: ${data.deceasedName} — $${data.price.toFixed(2)}`,
+    subject: `Comandă nouă: ${data.deceasedName} — $${data.price.toFixed(2)}`,
     html: baseLayout(content),
   })
 }
 
 export async function sendShippedNotification(data: OrderEmailData) {
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Your Plate Has Been Shipped</h1>
-    <p style="margin:0 0 24px;color:#78716c;font-size:15px;font-family:Arial,sans-serif">Great news, ${data.customerName}! Your memorial plate for <strong>${data.deceasedName}</strong> is on its way.</p>
+    <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Placa Ta a Fost Expediată</h1>
+    <p style="margin:0 0 24px;color:#78716c;font-size:15px;font-family:Arial,sans-serif">Vești bune, ${data.customerName}! Placa ta memorială pentru <strong>${data.deceasedName}</strong> este în drum.</p>
 
     <div style="background:#f5f4f0;border-radius:12px;padding:20px 24px;margin-bottom:24px">
-      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Delivering to</p>
+      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Livrare către</p>
       <p style="margin:0;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.shippingAddress}, ${data.shippingCity}, ${data.shippingPostalCode}</p>
     </div>
 
-    <p style="margin:0 0 16px;color:#57534e;font-size:14px;font-family:Arial,sans-serif">While you wait, your memorial page is live and ready to share:</p>
-    <a href="${data.memorialUrl}" style="display:inline-block;background:#1c1917;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:14px;font-family:Arial,sans-serif;font-weight:bold">View Memorial Page</a>
+    <p style="margin:0 0 16px;color:#57534e;font-size:14px;font-family:Arial,sans-serif">Cât aștepți, pagina ta memorială este activă și gata de distribuit:</p>
+    <a href="${data.memorialUrl}" style="display:inline-block;background:#1c1917;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:14px;font-family:Arial,sans-serif;font-weight:bold">Vezi Pagina Memorială</a>
 
-    <p style="margin:32px 0 0;color:#a8a29e;font-size:12px;font-family:Arial,sans-serif">Order #${data.orderId.slice(-8).toUpperCase()}</p>
+    <p style="margin:32px 0 0;color:#a8a29e;font-size:12px;font-family:Arial,sans-serif">Comandă #${data.orderId.slice(-8).toUpperCase()}</p>
   `
   await resend.emails.send({
     from: FROM,
     to: data.customerEmail,
-    subject: `Your memorial plate is on its way — ${data.deceasedName}`,
+    subject: `Placa ta memorială este în drum — ${data.deceasedName}`,
     html: baseLayout(content),
   })
 }

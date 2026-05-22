@@ -28,7 +28,7 @@ function SignInContent() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error || 'Registration failed')
+        setError(data.error || 'Înregistrare eșuată')
         setLoading(false)
         return
       }
@@ -41,7 +41,7 @@ function SignInContent() {
     })
 
     if (result?.error) {
-      setError('Invalid email or password')
+      setError('Email sau parolă incorectă')
       setLoading(false)
     } else {
       router.push(callbackUrl)
@@ -59,10 +59,10 @@ function SignInContent() {
             <span className="text-lg font-bold tracking-widest text-stone-800 serif">ETERNAL MEMORIES</span>
           </Link>
           <h1 className="text-3xl font-bold serif text-stone-800">
-            {mode === 'signin' ? 'Welcome back' : 'Create account'}
+            {mode === 'signin' ? 'Bine ai revenit' : 'Creează cont'}
           </h1>
           <p className="text-stone-500 mt-2">
-            {mode === 'signin' ? 'Sign in to manage your memorials.' : 'Start preserving legacies today.'}
+            {mode === 'signin' ? 'Autentifică-te pentru a-ți gestiona memoriile.' : 'Începe să păstrezi amintiri astăzi.'}
           </p>
         </div>
 
@@ -75,7 +75,7 @@ function SignInContent() {
                 onClick={() => { setMode(m); setError('') }}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === m ? 'bg-white shadow-sm text-stone-800' : 'text-stone-500'}`}
               >
-                {m === 'signin' ? 'Sign In' : 'Sign Up'}
+                {m === 'signin' ? 'Autentificare' : 'Înregistrare'}
               </button>
             ))}
           </div>
@@ -83,19 +83,20 @@ function SignInContent() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-1.5">Full Name</label>
+                <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-1.5">Nume Complet</label>
                 <input
                   type="text"
                   required
                   value={form.name}
                   onChange={e => setForm({ ...form, name: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-amber-500 outline-none transition-all"
-                  placeholder="Your Name"
+                  placeholder="Numele tău"
                 />
               </div>
             )}
             <div>
               <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-1.5">Email</label>
+
               <input
                 type="email"
                 required
@@ -106,7 +107,7 @@ function SignInContent() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-1.5">Password</label>
+              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-1.5">Parolă</label>
               <input
                 type="password"
                 required
@@ -114,7 +115,7 @@ function SignInContent() {
                 value={form.password}
                 onChange={e => setForm({ ...form, password: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-amber-500 outline-none transition-all"
-                placeholder="Minimum 8 characters"
+                placeholder="Minimum 8 caractere"
               />
             </div>
 
@@ -125,7 +126,7 @@ function SignInContent() {
               disabled={loading}
               className="w-full py-4 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md disabled:opacity-50 mt-2"
             >
-              {loading ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+              {loading ? 'Te rugăm să aștepți...' : mode === 'signin' ? 'Autentificare' : 'Creează Cont'}
             </button>
           </form>
         </div>

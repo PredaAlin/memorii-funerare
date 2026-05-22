@@ -41,15 +41,15 @@ export default function CheckoutPage() {
 
   return (
     <div className="max-w-md mx-auto px-6 py-20 text-center">
-      <h2 className="text-3xl font-bold mb-6 serif text-stone-800">Finalize Order</h2>
+      <h2 className="text-3xl font-bold mb-6 serif text-stone-800">Finalizează Comanda</h2>
       <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-xl space-y-6">
         <div className="flex justify-between text-stone-600">
-          <span>Items ({cart.length})</span>
+          <span>Produse ({cart.length})</span>
           <span>${total.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-stone-600">
-          <span>Shipping to {shippingInfo.city}</span>
-          <span className="text-green-600 font-bold text-xs">FREE</span>
+          <span>Livrare în {shippingInfo.city}</span>
+          <span className="text-green-600 font-bold text-xs">GRATUIT</span>
         </div>
         <div className="border-t border-stone-100 pt-4 flex justify-between font-bold text-xl serif text-stone-900">
           <span>Total</span>
@@ -58,7 +58,7 @@ export default function CheckoutPage() {
 
         {!session && (
           <p className="text-xs text-amber-700 bg-amber-50 rounded-xl p-3 font-medium">
-            You&apos;ll be asked to sign in before payment to link your memorial to your account.
+            Vei fi rugat să te autentifici înainte de plată pentru a lega memoriul de contul tău.
           </p>
         )}
 
@@ -69,10 +69,10 @@ export default function CheckoutPage() {
           disabled={loading}
           className="w-full py-4 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
         >
-          {loading ? 'Preparing checkout...' : 'Pay with Stripe'}
+          {loading ? 'Se pregătește plata...' : 'Plătește cu Stripe'}
         </button>
         <button onClick={() => router.push('/cart')} className="w-full py-2 text-stone-400 font-bold text-sm hover:text-stone-600">
-          Return to Cart
+          Înapoi la Coș
         </button>
       </div>
     </div>

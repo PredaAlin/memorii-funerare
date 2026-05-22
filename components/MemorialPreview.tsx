@@ -11,7 +11,7 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '...';
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('ro-RO', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -46,7 +46,7 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
             <div className="w-16 h-16 bg-white rounded-full p-1 shadow-lg border-2 border-amber-100 overflow-hidden mb-3">
               <img src={data.media[0] || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop"} className="w-full h-full object-cover rounded-full" />
             </div>
-            <h3 className="text-md font-bold text-stone-800 serif uppercase tracking-widest">{data.deceasedName || "Full Name"}</h3>
+            <h3 className="text-md font-bold text-stone-800 serif uppercase tracking-widest">{data.deceasedName || "Nume Complet"}</h3>
             <div className="flex items-center gap-2 mt-1 text-stone-500 text-[8px] font-bold uppercase tracking-tighter">
               <span>{formatDate(data.birthDate)}</span>
               <span className="w-1 h-1 bg-amber-400 rounded-full"></span>
@@ -66,7 +66,7 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
                   : 'text-stone-400'
                 }`}
               >
-                {tab}
+                {tab === 'info' ? 'info' : tab === 'gallery' ? 'galerie' : 'videoclipuri'}
               </button>
             ))}
           </div>
@@ -79,9 +79,9 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
                     "{data.quote}"
                   </div>
                 )}
-                <h4 className="text-[8px] font-bold text-stone-400 uppercase tracking-widest mb-2 border-b border-stone-200 pb-1">Biography</h4>
+                <h4 className="text-[8px] font-bold text-stone-400 uppercase tracking-widest mb-2 border-b border-stone-200 pb-1">Biografie</h4>
                 <p className="text-stone-700 text-[11px] leading-relaxed whitespace-pre-wrap">
-                  {data.bio || "Story to be told..."}
+                  {data.bio || "Povestea urmează să fie spusă..."}
                 </p>
                 <div className="mt-12 flex flex-col items-center gap-3 opacity-30">
                   <div className="w-16 h-16 p-2 bg-white border border-stone-100 rounded-lg shadow-sm">
@@ -99,7 +99,7 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
                     <img src={img} className="w-full h-full object-cover" />
                   </div>
                 )) : (
-                  <p className="col-span-2 text-center text-stone-400 text-[10px] py-10">No photos added yet.</p>
+                  <p className="col-span-2 text-center text-stone-400 text-[10px] py-10">Nicio fotografie adăugată încă.</p>
                 )}
               </div>
             )}
@@ -111,7 +111,7 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
                     <video src={vid} controls className="w-full h-full object-cover" />
                   </div>
                 )) : (
-                  <p className="text-center text-stone-400 text-[10px] py-10">No videos added yet.</p>
+                  <p className="text-center text-stone-400 text-[10px] py-10">Niciun videoclip adăugat încă.</p>
                 )}
               </div>
             )}

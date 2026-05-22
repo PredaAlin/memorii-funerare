@@ -1,9 +1,9 @@
 import { PricingSection } from '@/components/PricingSection'
 
 const TESTIMONIALS = [
-  { quote: "A beautiful way to share Grandpa's stories with the younger generation who never met him. It brings the cemetery to life.", author: 'Sarah Jenkins', location: 'London, UK' },
-  { quote: "The stainless steel plate is incredibly durable. It survived a harsh mountain winter and still scans perfectly. Truly premium.", author: 'Michael Ross', location: 'Denver, CO' },
-  { quote: "The AI assistant helped me find the words when I was too overwhelmed by grief. It's more than a product; it's a service for the soul.", author: 'David L.', location: 'Sydney, AU' },
+  { quote: 'O modalitate frumoasă de a împărtăși poveștile Bunicului cu generațiile tinere care nu l-au cunoscut. Aduce cimitirul la viață.', author: 'Sarah Jenkins', location: 'Londra, UK' },
+  { quote: 'Placa din oțel inoxidabil este incredibil de durabilă. A supraviețuit unei ierni grele de munte și scanează perfect. Cu adevărat premium.', author: 'Michael Ross', location: 'Denver, CO' },
+  { quote: 'M-a ajutat să găsesc cuvintele potrivite când eram copleșit de durere. E mai mult decât un produs; e un serviciu pentru suflet.', author: 'David L.', location: 'Sydney, AU' },
 ]
 
 export default function HomePage() {
@@ -12,15 +12,15 @@ export default function HomePage() {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 py-12 md:py-24 text-center">
         <h1 className="text-5xl md:text-8xl font-bold leading-tight text-stone-900 serif mb-8 tracking-tight">
-          Keep Their <br />
-          <span className="text-amber-700 italic">Legacy</span> Alive.
+          Păstrează-le <br />
+          <span className="text-amber-700 italic">Amintirea</span> Vie.
         </h1>
         <p className="text-xl md:text-2xl text-stone-600 leading-relaxed max-w-2xl mx-auto mb-12 font-light">
-          Secure a permanent digital resting place linked to a premium stainless steel plate. A bridge between generations.
+          Asigură un loc digital permanent, legat de o placă premium din oțel inoxidabil. O punte între generații.
         </p>
         <div className="flex justify-center gap-6">
           <a href="#plans" className="px-10 py-5 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-xl hover:shadow-2xl">
-            Choose a Plan
+            Alege un Plan
           </a>
         </div>
       </section>
@@ -37,17 +37,17 @@ export default function HomePage() {
               className="relative rounded-3xl shadow-2xl border-4 border-white grayscale-[10%] group-hover:grayscale-0 transition-all duration-700"
             />
             <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl max-w-[240px] border border-stone-100 hidden md:block">
-              <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-1">In Practice</p>
-              <p className="text-sm text-stone-600 italic">&ldquo;It turns a static stone into a library of memories for everyone who visits.&rdquo;</p>
+              <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-1">În Practică</p>
+              <p className="text-sm text-stone-600 italic">&ldquo;Transformă o piatră statică într-o bibliotecă de amintiri pentru toți cei care o vizitează.&rdquo;</p>
             </div>
           </div>
           <div className="space-y-8">
-            <h2 className="text-4xl font-bold serif text-stone-900">The Physical <br />meets the Digital</h2>
+            <h2 className="text-4xl font-bold serif text-stone-900">Fizicul întâlnește <br />Digitalul</h2>
             <p className="text-lg text-stone-600 leading-relaxed">
-              Our plates are designed to withstand the elements for decades. When a visitor scans the QR code, they aren&apos;t just reading a name—they&apos;re entering a gallery of a life well-lived.
+              Plăcile noastre sunt proiectate să reziste decenii. Când un vizitator scanează codul QR, nu citește doar un nume — intră într-o galerie a unei vieți bine trăite.
             </p>
             <ul className="space-y-4">
-              {['Laser-etched medical grade steel', 'Instant loading mobile interface', 'No app required for visitors', 'Update content anytime from home'].map((item, idx) => (
+              {['Oțel medical gravat cu laser', 'Interfață mobilă cu încărcare instantanee', 'Nu necesită aplicație pentru vizitatori', 'Actualizează conținutul oricând, de acasă'].map((item, idx) => (
                 <li key={idx} className="flex items-center gap-4 text-stone-800 font-medium">
                   <div className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center text-amber-700">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
@@ -63,7 +63,7 @@ export default function HomePage() {
       {/* Testimonials */}
       <section className="py-24 px-6 bg-white">
         <div className="max-w-6xl mx-auto text-center mb-16">
-          <h2 className="text-4xl font-bold serif text-stone-900 mb-4">Loved by Families</h2>
+          <h2 className="text-4xl font-bold serif text-stone-900 mb-4">Iubit de Familii</h2>
           <div className="w-24 h-1 bg-amber-600 mx-auto rounded-full"></div>
         </div>
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">

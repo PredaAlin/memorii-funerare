@@ -27,29 +27,29 @@ function SuccessContent() {
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
         </svg>
       </div>
-      <h2 className="text-4xl font-bold mb-4 serif text-stone-800">Legacy Secured</h2>
+      <h2 className="text-4xl font-bold mb-4 serif text-stone-800">Moștenire Asigurată</h2>
       <p className="text-stone-600 text-lg mb-4">
         {shippingInfo.fullName
-          ? <>Thank you, <strong>{shippingInfo.fullName}</strong>. Your custom plates are now being inscribed.</>
-          : 'Thank you for your order. Your custom plates are now being inscribed.'
+          ? <>Mulțumim, <strong>{shippingInfo.fullName}</strong>. Plăcile tale personalizate sunt acum în curs de inscripționare.</>
+          : 'Îți mulțumim pentru comandă. Plăcile tale personalizate sunt acum în curs de inscripționare.'
         }
       </p>
       {shippingInfo.email && (
-        <p className="text-stone-500 mb-12">A tracking link will be sent to <strong>{shippingInfo.email}</strong>.</p>
+        <p className="text-stone-500 mb-12">Un link de urmărire va fi trimis la <strong>{shippingInfo.email}</strong>.</p>
       )}
       <div className="flex gap-4 justify-center">
         <Link
           href="/dashboard"
           className="px-10 py-4 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all"
         >
-          View My Memorials
+          Vezi Memoriile mele
         </Link>
         <Link href="/" className="px-10 py-4 border-2 border-stone-200 text-stone-700 rounded-full font-bold hover:bg-stone-50 transition-all">
-          Return Home
+          Înapoi Acasă
         </Link>
       </div>
       {sessionId && (
-        <p className="mt-8 text-xs text-stone-400 font-mono">Order ref: {sessionId}</p>
+        <p className="mt-8 text-xs text-stone-400 font-mono">Ref. comandă: {sessionId}</p>
       )}
     </div>
   )
