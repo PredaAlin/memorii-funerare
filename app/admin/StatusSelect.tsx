@@ -18,7 +18,7 @@ const statusColor: Record<string, string> = {
   delivered: 'bg-green-50 text-green-700 border-green-200',
 }
 
-export default function StatusSelect({ orderId, current }: { orderId: string; current: string }) {
+export default function StatusSelect({ orderId, current, onChange }: { orderId: string; current: string; onChange?: (newStatus: string) => void }) {
   const [status, setStatus] = useState(current)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(false)
@@ -35,6 +35,7 @@ export default function StatusSelect({ orderId, current }: { orderId: string; cu
       })
       if (res.ok) {
         setStatus(next)
+        onChange?.(next)
       } else {
         setStatus(prev)
         setError(true)
