@@ -39,8 +39,8 @@ export default function CartPage() {
           {/* Cart items */}
           <div className="space-y-4">
             {cart.map(item => (
-              <div key={item.id} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-center gap-6">
+              <div key={item.id} className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-4 sm:gap-6">
                   <div className="w-20 h-20 bg-stone-100 rounded-lg flex items-center justify-center text-stone-400 relative">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><rect x="7" y="7" width="3" height="3"/><rect x="14" y="7" width="3" height="3"/><rect x="7" y="14" width="3" height="3"/><rect x="14" y="14" width="3" height="3"/></svg>
                     <div className={`absolute -top-2 -right-2 px-2 py-0.5 rounded text-[8px] font-bold uppercase ${item.memorialData.plan === 'premium' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-600'}`}>
@@ -62,7 +62,7 @@ export default function CartPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
                   {item.isConfigured && (
                     <button
                       onClick={() => router.push(`/preview?id=${item.id}`)}

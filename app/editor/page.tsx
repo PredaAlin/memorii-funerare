@@ -19,7 +19,7 @@ function EditorContent() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12 flex justify-center">
+    <div className="max-w-6xl mx-auto px-2 sm:px-6 py-4 sm:py-12 flex justify-center">
       <MemorialEditor
         initialData={item.memorialData}
         onSave={(data) => {

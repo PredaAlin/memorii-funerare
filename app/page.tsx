@@ -10,8 +10,8 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 py-12 md:py-24 text-center">
-        <h1 className="text-5xl md:text-8xl font-bold leading-tight text-stone-900 serif mb-8 tracking-tight">
+      <section className="max-w-6xl mx-auto px-6 py-10 md:py-24 text-center">
+        <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold leading-tight text-stone-900 serif mb-6 sm:mb-8 tracking-tight">
           Păstrează-le <br />
           <span className="text-amber-700 italic">Amintirea</span> Vie.
         </h1>
@@ -26,8 +26,8 @@ export default function HomePage() {
       </section>
 
       {/* Real World Example */}
-      <section className="bg-stone-50 py-20 px-6 border-y border-stone-200">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+      <section className="bg-stone-50 py-12 md:py-20 px-6 border-y border-stone-200">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           <div className="relative group">
             <div className="absolute inset-0 bg-amber-600/10 rounded-3xl -rotate-2 group-hover:rotate-0 transition-transform duration-500"></div>
             {/* eslint-disable-next-line @next/next/no-img-element */}

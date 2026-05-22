@@ -48,7 +48,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
 
   return (
     <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden max-w-4xl w-full">
-      <div className="bg-stone-900 text-white p-8 flex justify-between items-start">
+      <div className="bg-stone-900 text-white p-5 sm:p-8 flex justify-between items-start">
         <div>
           <h2 className="text-3xl serif">Designer Memorial</h2>
           <div className="flex items-center gap-3 mt-2">
@@ -89,7 +89,7 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
         ))}
       </div>
 
-      <div className="p-8 min-h-[400px]">
+      <div className="p-5 sm:p-8 min-h-[400px]">
         {activeTab === 'details' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
