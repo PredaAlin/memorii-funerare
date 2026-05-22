@@ -199,3 +199,9 @@ This project was originally a single-file Vite + React app (`index.tsx` + `index
 **Prisma reads `.env`, not `.env.local`.** Next.js reads both, but the Prisma CLI (`db:push`, `db:studio`, etc.) only reads `.env`. Keep `DATABASE_URL` in both files.
 
 **Dev server must be restarted after `.env.local` changes.** Next.js does not hot-reload environment variables. Kill the server and run `npm run dev` again after adding or changing any env var.
+
+**Deleting a User from the database requires manually deleting their Orders first.** `Account`, `Session`, and `Memorial` all have `onDelete: Cascade` on their `userId` foreign key, so they clean up automatically. `Order` does not — deleting a `User` who has orders will fail with a foreign key violation. Safe deletion order via Neon SQL Editor:
+```sql
+DELETE FROM "Order" WHERE "userId" = '<user-id>';
+DELETE FROM "User" WHERE id = '<user-id>';
+```
