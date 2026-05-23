@@ -25,7 +25,7 @@ export function PricingSection() {
           <div className="mb-8">
             <span className="text-xs font-bold uppercase tracking-widest text-stone-400">Esențial</span>
             <h2 className="text-3xl font-bold serif text-stone-800 mt-2">Memoriu de Bază</h2>
-            <p className="text-5xl font-bold text-stone-900 mt-6">${PRICES.basic}</p>
+            <p className="text-5xl font-bold text-stone-900 mt-6">{PRICES.basic} lei</p>
           </div>
           <ul className="space-y-4 mb-10 flex-grow text-sm">
             {['Placă de oțel inscripționată QR', 'Găzduire date 10 ani', 'Stocare 100MB (Doar Fotografii)'].map(f => (
@@ -49,7 +49,7 @@ export function PricingSection() {
           <div className="mb-8">
             <span className="text-xs font-bold uppercase tracking-widest text-amber-500/60">Profesional</span>
             <h2 className="text-3xl font-bold serif text-white mt-2">Moștenire Premium</h2>
-            <p className="text-5xl font-bold text-white mt-6">${PRICES.premium}</p>
+            <p className="text-5xl font-bold text-white mt-6">{PRICES.premium} lei</p>
           </div>
           <ul className="space-y-4 mb-10 flex-grow text-sm">
             {['Placă de oțel inscripționată QR', 'Găzduire garantată pe viață', 'Stocare 300MB (Fotografii + Videoclipuri)'].map(f => (

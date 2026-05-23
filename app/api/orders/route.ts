@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
   // Create Stripe Checkout session
   const lineItems = cart.map(item => ({
     price_data: {
-      currency: 'usd',
+      currency: 'ron',
       product_data: {
         name: `${item.memorialData.plan === 'premium' ? 'Premium Legacy' : 'Basic Memorial'} — ${item.memorialData.deceasedName || 'Untitled'}`,
         description: item.memorialData.plan === 'premium'

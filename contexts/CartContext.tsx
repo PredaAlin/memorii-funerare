@@ -4,8 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { CartItem, MemorialContent, MemorialPlan, ShippingInfo } from '@/types'
 
 export const PRICES: Record<MemorialPlan, number> = {
-  basic: 49.99,
-  premium: 89.99,
+  basic: 149.99,
+  premium: 199.99,
 }
 
 const INITIAL_SHIPPING: ShippingInfo = {

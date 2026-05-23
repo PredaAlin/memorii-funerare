@@ -139,7 +139,7 @@ export function AdminDashboard({ initialOrders, baseUrl }: Props) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm">
           <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2">Venituri</p>
-          <p className="text-3xl font-bold serif text-stone-800">${stats.revenue.toFixed(2)}</p>
+          <p className="text-3xl font-bold serif text-stone-800">{stats.revenue.toFixed(2)} lei</p>
           <p className="text-xs text-stone-400 mt-1">comenzi confirmate</p>
         </div>
         <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm">
@@ -221,7 +221,7 @@ export function AdminDashboard({ initialOrders, baseUrl }: Props) {
                         {order.memorial.deceasedName || 'Memoriu fără titlu'}
                       </h2>
                       <p className="text-stone-500 text-sm">
-                        {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'} · ${order.price.toFixed(2)}
+                        {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'} · {order.price.toFixed(2)} lei
                       </p>
                     </div>
                     <StatusSelect

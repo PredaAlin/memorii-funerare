@@ -80,7 +80,7 @@ export default async function DashboardPage() {
                     <div>
                       <h2 className="text-xl font-bold serif text-stone-800">{order.memorial.deceasedName || 'Memoriu fără titlu'}</h2>
                       <p className="text-stone-500 text-sm mt-1">
-                        {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'} · ${order.price.toFixed(2)}
+                        {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'} · {order.price.toFixed(2)} lei
                       </p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${statusColor[order.status] || 'bg-stone-50 text-stone-500'}`}>

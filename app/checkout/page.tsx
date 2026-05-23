@@ -45,7 +45,7 @@ export default function CheckoutPage() {
       <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-xl space-y-6">
         <div className="flex justify-between text-stone-600">
           <span>Produse ({cart.length})</span>
-          <span>${total.toFixed(2)}</span>
+          <span>{total.toFixed(2)} lei</span>
         </div>
         <div className="flex justify-between text-stone-600">
           <span>Livrare în {shippingInfo.city}</span>
@@ -53,7 +53,7 @@ export default function CheckoutPage() {
         </div>
         <div className="border-t border-stone-100 pt-4 flex justify-between font-bold text-xl serif text-stone-900">
           <span>Total</span>
-          <span>${total.toFixed(2)}</span>
+          <span>{total.toFixed(2)} lei</span>
         </div>
 
         {!session && (

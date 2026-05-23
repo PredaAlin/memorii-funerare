@@ -133,7 +133,7 @@ export default function CartPage() {
           <div className="p-8 bg-stone-900 rounded-3xl text-white flex flex-col md:flex-row justify-between items-center gap-8 shadow-2xl">
             <div>
               <p className="text-stone-400 font-medium">Total Comandă</p>
-              <p className="text-4xl font-bold serif">${total.toFixed(2)}</p>
+              <p className="text-4xl font-bold serif">{total.toFixed(2)} lei</p>
             </div>
             <div className="flex flex-col items-center md:items-end gap-2">
               <button
