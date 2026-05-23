@@ -73,6 +73,8 @@ This is a **Next.js 15 App Router** app (TypeScript, Tailwind CSS v3, React 19).
 | `/dashboard` | Dynamic SSR | Server component, fetches current user's orders from DB |
 | `/admin` | Dynamic SSR | Admin-only, fetches all orders from DB |
 | `/auth/signin` | Client | Combined sign-in/sign-up form |
+| `/reviews` | Static SSR | Public list of all verified-purchase reviews |
+| `/reviews/write` | Dynamic SSR | Server-validates order eligibility, renders client `ReviewForm` |
 
 ### State management
 
@@ -97,8 +99,11 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 - `lib/auth.ts` — NextAuth v4 config (JWT strategy, credentials provider)
 - `lib/db.ts` — Prisma singleton (global pattern to avoid connection leaks in dev)
 - `lib/stripe.ts` — Lazy Stripe client (`getStripe()` function, not module-level constant)
-- `lib/email.ts` — Resend email helpers: `sendPaymentConfirmation`, `sendAdminNewOrder`, `sendShippedNotification`, `buildOrderEmailData`
-- `prisma/schema.prisma` — `User`, `Memorial`, `Order` + NextAuth tables (`Account`, `Session`, `VerificationToken`). `Memorial` has a `theme String @default("clasic")` field.
+- `lib/email.ts` — Resend email helpers: `sendPaymentConfirmation`, `sendAdminNewOrder`, `sendShippedNotification`, `sendDeliveredNotification`, `buildOrderEmailData`
+- `prisma/schema.prisma` — `User`, `Memorial`, `Order`, `Review` + NextAuth tables. `Memorial` has `theme String @default("clasic")`. `Review` has `orderId @unique` (one review per order) with cascade deletes on both `userId` and `orderId`.
+- `app/reviews/page.tsx` — SSR public reviews list with avg rating
+- `app/reviews/write/page.tsx` — Server shell: auth check, order eligibility check, duplicate check; renders `ReviewForm`
+- `app/reviews/write/ReviewForm.tsx` — Client component: interactive star picker, textarea, POST to `/api/reviews`
 - `types/next-auth.d.ts` — Adds `user.id` to the NextAuth Session type
 
 ### API routes
@@ -111,7 +116,9 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 | `GET/PATCH /api/memorials/[id]` | Owner only | Read / update a memorial |
 | `POST /api/orders` | Required | Upload media → create Memorial + Order → return Stripe Checkout URL |
 | `POST /api/webhooks/stripe` | Stripe sig | Marks orders paid, publishes memorials, sends confirmation emails |
-| `PATCH /api/admin/orders/[id]` | Admin only | Update order status; sends shipped email when status → `shipped` |
+| `PATCH /api/admin/orders/[id]` | Admin only | Update order status; sends shipped email on → `shipped`, delivered email on → `delivered` |
+| `GET /api/reviews` | — | Public list of all reviews (author anonymised to first name + initial) |
+| `POST /api/reviews` | Required | Submit review — validates delivered order ownership, one per order |
 
 ### Admin access
 
@@ -125,6 +132,7 @@ Three transactional emails are sent via `lib/email.ts`:
 |---|---|---|
 | Stripe `checkout.session.completed` webhook | Customer + Admin | Payment confirmation + new order notification |
 | Admin changes order status → `shipped` | Customer | Shipping notification |
+| Admin changes order status → `delivered` | Customer | Thank-you + review request with link to `/reviews/write?orderId=xxx` |
 
 **Critical pattern:** emails in the webhook are wrapped in `Promise.allSettled` so Resend failures never cause a webhook 500 (which would trigger Stripe retries). The shipped email in the PATCH route is fire-and-forget (`.catch` only logs).
 
@@ -147,10 +155,10 @@ The cart validates that all memorial pages are configured before allowing checko
 
 ### Plans
 
-- **Basic** ($49.99) — photos only, 100MB simulated storage, 10-year hosting
-- **Premium** ($89.99) — photos + videos, 300MB simulated storage, lifetime hosting
+- **Basic** (149.99 lei) — photos only, 100MB simulated storage, 10-year hosting
+- **Premium** (199.99 lei) — photos + videos, 300MB simulated storage, lifetime hosting
 
-Prices are defined in `contexts/CartContext.tsx` (`PRICES` constant).
+Prices are defined in `contexts/CartContext.tsx` (`PRICES` constant). Currency is RON (`'ron'`) in the Stripe checkout session.
 
 ### Themes
 
