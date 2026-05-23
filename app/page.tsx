@@ -1,9 +1,9 @@
 import { PricingSection } from '@/components/PricingSection'
 
 const TESTIMONIALS = [
-  { quote: 'O modalitate frumoasă de a împărtăși poveștile Bunicului cu generațiile tinere care nu l-au cunoscut. Aduce cimitirul la viață.', author: 'Sarah Jenkins', location: 'Londra, UK' },
-  { quote: 'Placa din oțel inoxidabil este incredibil de durabilă. A supraviețuit unei ierni grele de munte și scanează perfect. Cu adevărat premium.', author: 'Michael Ross', location: 'Denver, CO' },
-  { quote: 'M-a ajutat să găsesc cuvintele potrivite când eram copleșit de durere. E mai mult decât un produs; e un serviciu pentru suflet.', author: 'David L.', location: 'Sydney, AU' },
+  { quote: 'O modalitate frumoasă de a împărtăși poveștile Bunicului cu generațiile tinere care nu l-au cunoscut. Aduce cimitirul la viață.', author: 'Andreea Moldovan', location: 'CJ' },
+  { quote: 'Placa din oțel inoxidabil este incredibil de durabilă. A supraviețuit unei ierni aspre și scanează perfect. Cu adevărat premium.', author: 'Mihai Ionescu', location: 'B' },
+  { quote: 'M-a ajutat să găsesc cuvintele potrivite când eram copleșit de durere. E mai mult decât un produs; e un serviciu pentru suflet.', author: 'Daniela Popa', location: 'TM' },
 ]
 
 export default function HomePage() {
