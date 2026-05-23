@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { buildOrderEmailData, sendShippedNotification } from '@/lib/email'
+import { buildOrderEmailData, sendDeliveredNotification, sendShippedNotification } from '@/lib/email'
 
 const VALID_STATUSES = ['pending', 'paid', 'shipped', 'delivered']
 
@@ -31,6 +31,12 @@ export async function PATCH(
   if (status === 'shipped') {
     sendShippedNotification(buildOrderEmailData(order)).catch((err) =>
       console.error('Failed to send shipped notification:', err)
+    )
+  }
+
+  if (status === 'delivered') {
+    sendDeliveredNotification(buildOrderEmailData(order)).catch((err) =>
+      console.error('Failed to send delivered notification:', err)
     )
   }
 

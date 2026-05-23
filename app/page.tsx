@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { PricingSection } from '@/components/PricingSection'
 
 const TESTIMONIALS = [
@@ -83,6 +84,15 @@ export default function HomePage() {
               </div>
             </div>
           ))}
+        </div>
+        <div className="text-center mt-12">
+          <Link
+            href="/reviews"
+            className="inline-flex items-center gap-2 text-stone-600 font-bold hover:text-stone-900 transition-colors group"
+          >
+            Vezi toate recenziile
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
+          </Link>
         </div>
       </section>
 

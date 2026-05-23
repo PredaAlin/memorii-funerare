@@ -123,6 +123,26 @@ export async function sendAdminNewOrder(data: OrderEmailData) {
   })
 }
 
+export async function sendDeliveredNotification(data: OrderEmailData) {
+  const reviewUrl = `${BASE_URL}/reviews/write?orderId=${data.orderId}`
+  const content = `
+    <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Mulțumim pentru achiziție!</h1>
+    <p style="margin:0 0 24px;color:#78716c;font-size:15px;font-family:Arial,sans-serif">Bună, ${data.customerName}! Sperăm că placa memorială pentru <strong>${data.deceasedName}</strong> a ajuns în bune condiții și că ești mulțumit de ea.</p>
+
+    <p style="margin:0 0 24px;color:#57534e;font-size:14px;font-family:Arial,sans-serif">Dacă ai avut ocazia să o testezi, ne-ar face o deosebită plăcere să ne lași câteva cuvinte. Recenziile verificate ajută și alte familii să ia decizia potrivită.</p>
+
+    <a href="${reviewUrl}" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:15px;font-family:Arial,sans-serif;font-weight:bold">Scrie o recenzie</a>
+
+    <p style="margin:32px 0 0;color:#a8a29e;font-size:12px;font-family:Arial,sans-serif">Comandă #${data.orderId.slice(-8).toUpperCase()}</p>
+  `
+  await resend.emails.send({
+    from: FROM,
+    to: data.customerEmail,
+    subject: `Mulțumim! Cum ți s-a părut placa memorială? — ${data.deceasedName}`,
+    html: baseLayout(content),
+  })
+}
+
 export async function sendShippedNotification(data: OrderEmailData) {
   const content = `
     <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Placa Ta a Fost Expediată</h1>

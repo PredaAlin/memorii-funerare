@@ -56,6 +56,7 @@ model User {
   sessions      Session[]
   memorials     Memorial[]
   orders        Order[]
+  reviews       Review[]
   createdAt     DateTime   @default(now())
 }
 
@@ -96,6 +97,18 @@ model Order {
   shippingCity       String
   shippingPostalCode String
   stripeSessionId    String?
+  review             Review?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rating    Int
+  body      String   @db.Text
+  createdAt DateTime @default(now())
 }

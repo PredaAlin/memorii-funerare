@@ -58,6 +58,7 @@ export function Navigation() {
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-4">
           {desktopLink('/', 'Acasă')}
+          {desktopLink('/reviews', 'Recenzii')}
           {session ? (
             <>
               {desktopLink('/dashboard', 'Memorialele mele')}
@@ -107,6 +108,7 @@ export function Navigation() {
       {open && (
         <div className="md:hidden bg-white border-t border-stone-100 px-6 pt-2 pb-6 space-y-0 shadow-lg">
           {mobileLink('/', 'Acasă')}
+          {mobileLink('/reviews', 'Recenzii')}
           {mobileLink('/cart', cart.length > 0 ? `Coș (${cart.length})` : 'Coș')}
           {session ? (
             <>
