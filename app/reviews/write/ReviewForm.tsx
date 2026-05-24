@@ -6,13 +6,14 @@ import { useRouter } from 'next/navigation'
 interface ReviewFormProps {
   orderId: string
   deceasedName: string
+  existing?: { id: string; rating: number; body: string }
 }
 
-export function ReviewForm({ orderId, deceasedName }: ReviewFormProps) {
+export function ReviewForm({ orderId, deceasedName, existing }: ReviewFormProps) {
   const router = useRouter()
-  const [rating, setRating] = useState(0)
+  const [rating, setRating] = useState(existing?.rating ?? 0)
   const [hovered, setHovered] = useState(0)
-  const [body, setBody] = useState('')
+  const [body, setBody] = useState(existing?.body ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -24,11 +25,18 @@ export function ReviewForm({ orderId, deceasedName }: ReviewFormProps) {
     setError('')
     setLoading(true)
 
-    const res = await fetch('/api/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId, rating, body }),
-    })
+    const res = existing
+      ? await fetch(`/api/reviews/${existing.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating, body }),
+        })
+      : await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, rating, body }),
+        })
+
     const data = await res.json()
 
     if (!res.ok) {
@@ -94,7 +102,7 @@ export function ReviewForm({ orderId, deceasedName }: ReviewFormProps) {
         disabled={loading}
         className="w-full py-4 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md disabled:opacity-50"
       >
-        {loading ? 'Se trimite...' : 'Trimite recenzia'}
+        {loading ? 'Se salvează...' : existing ? 'Salvează modificările' : 'Trimite recenzia'}
       </button>
     </form>
   )

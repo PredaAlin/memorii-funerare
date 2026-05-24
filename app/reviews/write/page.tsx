@@ -46,30 +46,26 @@ export default async function WriteReviewPage({
   }
 
   const existing = await db.review.findUnique({ where: { orderId } })
-  if (existing) {
-    return (
-      <div className="max-w-md mx-auto px-6 py-20 text-center">
-        <p className="text-xl font-bold serif text-stone-800 mb-2">Recenzie trimisă!</p>
-        <p className="text-stone-500">Ai trimis deja o recenzie pentru această comandă. Mulțumim!</p>
-        <Link href="/reviews" className="mt-6 inline-block text-amber-600 font-bold hover:underline">
-          Vezi toate recenziile
-        </Link>
-      </div>
-    )
-  }
+  const isEdit = !!existing
 
   return (
     <div className="max-w-lg mx-auto px-6 py-16">
       <div className="text-center mb-10">
         <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">Achiziție verificată</p>
-        <h1 className="text-4xl font-bold serif text-stone-900 mb-3">Scrie o recenzie</h1>
+        <h1 className="text-4xl font-bold serif text-stone-900 mb-3">
+          {isEdit ? 'Editează recenzia' : 'Scrie o recenzie'}
+        </h1>
         <p className="text-stone-500">
           Experiența ta îi ajută pe alții să onoreze amintirile celor dragi.
         </p>
       </div>
 
       <div className="bg-white rounded-3xl border border-stone-200 shadow-xl p-8">
-        <ReviewForm orderId={orderId} deceasedName={order.memorial.deceasedName} />
+        <ReviewForm
+          orderId={orderId}
+          deceasedName={order.memorial.deceasedName}
+          existing={isEdit ? { id: existing.id, rating: existing.rating, body: existing.body } : undefined}
+        />
       </div>
     </div>
   )

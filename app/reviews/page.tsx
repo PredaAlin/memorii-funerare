@@ -41,7 +41,7 @@ const SEED_REVIEWS = [
 export default async function ReviewsPage() {
   const session = await getServerSession(authOptions)
 
-  const [dbReviews, eligibleOrder] = await Promise.all([
+  const [dbReviews, eligibleOrder, myReviews] = await Promise.all([
     db.review.findMany({
       include: { order: { select: { shippingName: true, shippingCity: true } } },
       orderBy: { createdAt: 'desc' },
@@ -52,7 +52,15 @@ export default async function ReviewsPage() {
           select: { id: true },
         })
       : Promise.resolve(null),
+    session?.user?.id
+      ? db.review.findMany({
+          where: { userId: session.user.id },
+          select: { id: true, orderId: true },
+        })
+      : Promise.resolve([]),
   ])
+
+  const myReviewByOrderId = Object.fromEntries(myReviews.map(r => [r.orderId, r.id]))
 
   const allRatings = [
     ...dbReviews.map(r => r.rating),
@@ -87,20 +95,33 @@ export default async function ReviewsPage() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {dbReviews.map(r => (
-          <div key={r.id} className="bg-white border border-stone-100 rounded-3xl p-8 shadow-sm flex flex-col hover:shadow-md transition-shadow">
-            <div className="flex gap-0.5 mb-4">
-              {[1, 2, 3, 4, 5].map(s => <StarIcon key={s} filled={s <= r.rating} />)}
+        {dbReviews.map(r => {
+          const isOwn = !!myReviewByOrderId[r.orderId]
+          return (
+            <div key={r.id} className="bg-white border border-stone-100 rounded-3xl p-8 shadow-sm flex flex-col hover:shadow-md transition-shadow">
+              <div className="flex gap-0.5 mb-4">
+                {[1, 2, 3, 4, 5].map(s => <StarIcon key={s} filled={s <= r.rating} />)}
+              </div>
+              <p className="text-stone-700 italic leading-relaxed flex-grow mb-6">&ldquo;{r.body}&rdquo;</p>
+              <div className="flex items-end justify-between gap-2">
+                <div>
+                  <p className="font-bold text-stone-900 text-sm">{formatAuthor(r.order.shippingName)}</p>
+                  <p className="text-xs text-stone-400 uppercase tracking-widest mt-0.5">
+                    {r.order.shippingCity} · {r.createdAt.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric' })}
+                  </p>
+                </div>
+                {isOwn && (
+                  <Link
+                    href={`/reviews/write?orderId=${r.orderId}`}
+                    className="shrink-0 text-xs font-bold text-amber-600 hover:text-amber-700 transition-colors"
+                  >
+                    Editează
+                  </Link>
+                )}
+              </div>
             </div>
-            <p className="text-stone-700 italic leading-relaxed flex-grow mb-6">&ldquo;{r.body}&rdquo;</p>
-            <div>
-              <p className="font-bold text-stone-900 text-sm">{formatAuthor(r.order.shippingName)}</p>
-              <p className="text-xs text-stone-400 uppercase tracking-widest mt-0.5">
-                {r.order.shippingCity} · {r.createdAt.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric' })}
-              </p>
-            </div>
-          </div>
-        ))}
+          )
+        })}
         {SEED_REVIEWS.map(r => (
           <div key={r.id} className="bg-white border border-stone-100 rounded-3xl p-8 shadow-sm flex flex-col hover:shadow-md transition-shadow">
             <div className="flex gap-0.5 mb-4">
