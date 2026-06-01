@@ -41,15 +41,15 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
       <div className="mb-10">
-        <h1 className="text-4xl font-bold serif text-stone-800 mb-2">Memoriile mele</h1>
+        <h1 className="text-4xl font-bold serif text-stone-800 mb-2">Memorialele mele</h1>
         <p className="text-stone-500">Gestionează paginile tale memoriale și urmărește comenzile.</p>
       </div>
 
       {orders.length === 0 ? (
         <div className="text-center py-24 border-2 border-dashed border-stone-200 rounded-3xl bg-white">
-          <p className="text-stone-500 mb-6">Nu ai comandat încă niciun memoriu.</p>
+          <p className="text-stone-500 mb-6">Nu ai comandat încă niciun memorial.</p>
           <Link href="/" className="px-8 py-4 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all">
-            Creează Primul Tău Memoriu
+            Creează Primul Tău Memorial
           </Link>
         </div>
       ) : (
@@ -78,9 +78,9 @@ export default async function DashboardPage() {
                 <div className="flex-grow">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-xl font-bold serif text-stone-800">{order.memorial.deceasedName || 'Memoriu fără titlu'}</h2>
+                      <h2 className="text-xl font-bold serif text-stone-800">{order.memorial.deceasedName || 'Memorial fără titlu'}</h2>
                       <p className="text-stone-500 text-sm mt-1">
-                        {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'} · {order.price.toFixed(2)} lei
+                        {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memorial de Bază'} · {order.price.toFixed(2)} lei
                       </p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${statusColor[order.status] || 'bg-stone-50 text-stone-500'}`}>

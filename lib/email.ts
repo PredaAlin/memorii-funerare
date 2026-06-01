@@ -77,7 +77,7 @@ export async function sendPaymentConfirmation(data: OrderEmailData) {
       <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Memorial pentru</p>
       <p style="margin:0 0 16px;font-size:18px;color:#1c1917;font-weight:bold">${data.deceasedName}</p>
       <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Plan</p>
-      <p style="margin:0 0 16px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'} — ${data.price.toFixed(2)} lei</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Moștenire Premium' : 'Memorial de Bază'} — ${data.price.toFixed(2)} lei</p>
       <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Livrare către</p>
       <p style="margin:0;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.shippingAddress}, ${data.shippingCity}, ${data.shippingPostalCode}</p>
     </div>
@@ -107,7 +107,7 @@ export async function sendAdminNewOrder(data: OrderEmailData) {
 
       <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Memorial</p>
       <p style="margin:0 0 2px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.deceasedName}</p>
-      <p style="margin:0 0 16px;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'}</p>
+      <p style="margin:0 0 16px;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Moștenire Premium' : 'Memorial de Bază'}</p>
 
       <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Livrare către</p>
       <p style="margin:0;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.shippingAddress}, ${data.shippingCity}, ${data.shippingPostalCode}</p>

@@ -24,7 +24,7 @@ export function PricingSection() {
         <div className="bg-white border-2 border-stone-200 rounded-3xl p-10 shadow-sm hover:shadow-xl transition-all flex flex-col group">
           <div className="mb-8">
             <span className="text-xs font-bold uppercase tracking-widest text-stone-400">Esențial</span>
-            <h2 className="text-3xl font-bold serif text-stone-800 mt-2">Memoriu de Bază</h2>
+            <h2 className="text-3xl font-bold serif text-stone-800 mt-2">Memorial de Bază</h2>
             <p className="text-5xl font-bold text-stone-900 mt-6">{PRICES.basic} lei</p>
           </div>
           <ul className="space-y-4 mb-10 flex-grow text-sm">

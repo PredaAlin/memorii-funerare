@@ -42,7 +42,7 @@ function SuccessContent() {
           href="/dashboard"
           className="px-10 py-4 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all"
         >
-          Vezi Memoriile mele
+          Vezi Memorialele mele
         </Link>
         <Link href="/" className="px-10 py-4 border-2 border-stone-200 text-stone-700 rounded-full font-bold hover:bg-stone-50 transition-all">
           Înapoi Acasă

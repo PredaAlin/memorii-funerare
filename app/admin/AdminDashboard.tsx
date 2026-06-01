@@ -218,10 +218,10 @@ export function AdminDashboard({ initialOrders, baseUrl }: Props) {
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
                       <h2 className="text-xl font-bold serif text-stone-800">
-                        {order.memorial.deceasedName || 'Memoriu fără titlu'}
+                        {order.memorial.deceasedName || 'Memorial fără titlu'}
                       </h2>
                       <p className="text-stone-500 text-sm">
-                        {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memoriu de Bază'} · {order.price.toFixed(2)} lei
+                        {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memorial de Bază'} · {order.price.toFixed(2)} lei
                       </p>
                     </div>
                     <StatusSelect

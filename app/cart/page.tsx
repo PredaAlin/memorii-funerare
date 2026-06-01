@@ -48,7 +48,7 @@ export default function CartPage() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-stone-800 serif">{item.memorialData.deceasedName || 'Memoriu fără titlu'}</h3>
+                    <h3 className="text-lg font-bold text-stone-800 serif">{item.memorialData.deceasedName || 'Memorial fără titlu'}</h3>
                     <p className="text-stone-500 text-sm">{item.memorialData.plan === 'premium' ? 'Găzduire pe viață + Suport Video' : 'Găzduire 10 ani (Doar Imagini)'}</p>
                     <div className="mt-2">
                       {item.isConfigured ? (
