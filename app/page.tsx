@@ -1,5 +1,16 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PricingSection } from '@/components/PricingSection'
+
+export const metadata: Metadata = {
+  title: 'Plăci Memoriale QR din Oțel Inoxidabil',
+  description: 'Onorează-i pe cei dragi cu o placă memorială premium gravată cu cod QR, legată de o pagină digitală cu fotografii, povești și videoclipuri. Livrare în toată România.',
+  openGraph: {
+    title: 'Eternal Memories — Plăci Memoriale QR din Oțel Inoxidabil',
+    description: 'Onorează-i pe cei dragi cu o placă memorială premium gravată cu cod QR, legată de o pagină digitală cu fotografii, povești și videoclipuri.',
+    url: 'https://eternalmemories.ro',
+  },
+}
 
 const TESTIMONIALS = [
   { quote: 'O modalitate frumoasă de a împărtăși poveștile Bunicului cu generațiile tinere care nu l-au cunoscut. Aduce cimitirul la viață.', author: 'Andreea Moldovan', location: 'CJ' },

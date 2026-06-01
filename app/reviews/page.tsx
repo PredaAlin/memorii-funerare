@@ -1,7 +1,18 @@
+import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Recenzii Verificate',
+  description: 'Citește recenziile clienților Eternal Memories — familii din România care au ales plăci memoriale QR pentru a păstra amintirea celor dragi.',
+  openGraph: {
+    title: 'Recenzii Verificate | Eternal Memories',
+    description: 'Recenzii lăsate exclusiv de clienți cu achiziții confirmate.',
+    url: 'https://eternalmemories.ro/reviews',
+  },
+}
 
 const StarIcon = ({ filled }: { filled: boolean }) => (
   <svg className={`w-4 h-4 ${filled ? 'text-amber-500' : 'text-stone-200'}`} fill="currentColor" viewBox="0 0 20 20">

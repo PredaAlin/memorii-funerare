@@ -8,13 +8,32 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', weight: ['400', '700'] })
 
 export const metadata: Metadata = {
-  title: 'Eternal Memories QR',
-  description: 'A respectful platform for creating digital memorials linked to QR-inscribed metal plates for tombstones.',
+  metadataBase: new URL('https://eternalmemories.ro'),
+  title: {
+    default: 'Eternal Memories — Plăci Memoriale QR',
+    template: '%s | Eternal Memories',
+  },
+  description: 'Plăci memoriale premium din oțel inoxidabil cu cod QR, legate de o pagină digitală cu fotografii și povești. Onorează amintirea celor dragi pentru generații.',
+  keywords: ['memorial', 'placă memorială', 'cod QR', 'comemorare', 'placă funerară', 'amintire', 'cimitir', 'România', 'oțel inoxidabil'],
+  openGraph: {
+    type: 'website',
+    locale: 'ro_RO',
+    url: 'https://eternalmemories.ro',
+    siteName: 'Eternal Memories',
+    title: 'Eternal Memories — Plăci Memoriale QR',
+    description: 'Plăci memoriale premium din oțel inoxidabil cu cod QR, legate de o pagină digitală cu fotografii și povești.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Eternal Memories — Plăci Memoriale QR',
+    description: 'Plăci memoriale premium din oțel inoxidabil cu cod QR. Onorează amintirea celor dragi pentru generații.',
+  },
+  robots: { index: true, follow: true },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${cinzel.variable}`}>
+    <html lang="ro" className={`${inter.variable} ${cinzel.variable}`}>
       <body>
         <Providers>
           <div className="min-h-screen flex flex-col">
@@ -30,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </div>
                   <span className="text-sm font-bold tracking-widest text-stone-500 serif">ETERNAL MEMORIES</span>
                 </div>
-                <p className="text-stone-400 text-sm">© 2024 Eternal Memories Inc.</p>
+                <p className="text-stone-400 text-sm">© {new Date().getFullYear()} Eternal Memories</p>
               </div>
             </footer>
           </div>
