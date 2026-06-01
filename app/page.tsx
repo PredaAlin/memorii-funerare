@@ -91,7 +91,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-amber-600/10 rounded-3xl -rotate-2 group-hover:rotate-0 transition-transform duration-500 pointer-events-none"></div>
             <div className="relative rounded-3xl shadow-2xl border-4 border-white overflow-hidden grayscale-[10%] group-hover:grayscale-0 transition-all duration-700">
               <Image
-                src="/gravestone.jpg"
+                src="/gravestone.png"
                 alt="Placă memorială QR montată pe o piatră funerară din cimitir"
                 width={700}
                 height={525}
