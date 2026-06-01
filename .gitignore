@@ -15,6 +15,12 @@ dist-ssr
 .next/
 .claude/settings.local.json
 
+# Build artifacts
+tsconfig.tsbuildinfo
+
+# Unused assets
+public/gravestone.png
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
