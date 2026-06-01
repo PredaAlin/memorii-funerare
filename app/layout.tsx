@@ -31,10 +31,30 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Eternal Memories',
+  url: 'https://eternalmemories.ro',
+  logo: 'https://eternalmemories.ro/icon.svg',
+  description: 'Plăci memoriale premium din oțel inoxidabil cu cod QR, legate de pagini digitale cu fotografii și povești.',
+  areaServed: 'RO',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'alinpreda0711@gmail.com',
+    contactType: 'customer service',
+    availableLanguage: 'Romanian',
+  },
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ro" className={`${inter.variable} ${cinzel.variable}`}>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Navigation />

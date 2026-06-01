@@ -80,8 +80,26 @@ export default async function ReviewsPage() {
   const avgRating = (allRatings.reduce((s, r) => s + r, 0) / allRatings.length).toFixed(1)
   const totalCount = allRatings.length
 
+  const aggregateRatingJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: 'Placă Memorială QR',
+    brand: { '@type': 'Brand', name: 'Eternal Memories' },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: avgRating,
+      reviewCount: totalCount,
+      bestRating: '5',
+      worstRating: '1',
+    },
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRatingJsonLd) }}
+      />
       <div className="text-center mb-16">
         <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">Recenzii Verificate</p>
         <h1 className="text-5xl font-bold serif text-stone-900 mb-4">Ce spun familiile</h1>

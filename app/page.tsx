@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { PricingSection } from '@/components/PricingSection'
 
@@ -12,6 +13,47 @@ export const metadata: Metadata = {
   },
 }
 
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      item: {
+        '@type': 'Product',
+        name: 'Placă Memorială QR — Memorial de Bază',
+        description: 'Placă din oțel inoxidabil gravată cu cod QR, legată de o pagină digitală cu fotografii. Găzduire 10 ani, stocare 100MB.',
+        brand: { '@type': 'Brand', name: 'Eternal Memories' },
+        offers: {
+          '@type': 'Offer',
+          price: '149.99',
+          priceCurrency: 'RON',
+          availability: 'https://schema.org/InStock',
+          url: 'https://eternalmemories.ro',
+        },
+      },
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      item: {
+        '@type': 'Product',
+        name: 'Placă Memorială QR — Moștenire Premium',
+        description: 'Placă din oțel inoxidabil gravată cu cod QR, legată de o pagină digitală cu fotografii și videoclipuri. Găzduire pe viață, stocare 300MB.',
+        brand: { '@type': 'Brand', name: 'Eternal Memories' },
+        offers: {
+          '@type': 'Offer',
+          price: '199.99',
+          priceCurrency: 'RON',
+          availability: 'https://schema.org/InStock',
+          url: 'https://eternalmemories.ro',
+        },
+      },
+    },
+  ],
+}
+
 const TESTIMONIALS = [
   { quote: 'O modalitate frumoasă de a împărtăși poveștile Bunicului cu generațiile tinere care nu l-au cunoscut. Aduce cimitirul la viață.', author: 'Andreea Moldovan', location: 'CJ' },
   { quote: 'Placa din oțel inoxidabil este incredibil de durabilă. A supraviețuit unei ierni aspre și scanează perfect. Cu adevărat premium.', author: 'Mihai Ionescu', location: 'B' },
@@ -21,6 +63,11 @@ const TESTIMONIALS = [
 export default function HomePage() {
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 py-10 md:py-24 text-center">
         <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold leading-tight text-stone-900 serif mb-6 sm:mb-8 tracking-tight">
@@ -41,13 +88,18 @@ export default function HomePage() {
       <section className="bg-stone-50 py-12 md:py-20 px-6 border-y border-stone-200">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           <div className="relative group">
-            <div className="absolute inset-0 bg-amber-600/10 rounded-3xl -rotate-2 group-hover:rotate-0 transition-transform duration-500"></div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://www.dw.com/image/16348639_6.jpg"
-              alt="Real world example of QR memorial"
-              className="relative rounded-3xl shadow-2xl border-4 border-white grayscale-[10%] group-hover:grayscale-0 transition-all duration-700"
-            />
+            <div className="absolute inset-0 bg-amber-600/10 rounded-3xl -rotate-2 group-hover:rotate-0 transition-transform duration-500 pointer-events-none"></div>
+            <div className="relative rounded-3xl shadow-2xl border-4 border-white overflow-hidden grayscale-[10%] group-hover:grayscale-0 transition-all duration-700">
+              <Image
+                src="/gravestone.jpg"
+                alt="Placă memorială QR montată pe o piatră funerară din cimitir"
+                width={700}
+                height={525}
+                className="w-full h-auto"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+            </div>
             <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl max-w-[240px] border border-stone-100 hidden md:block">
               <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-1">În Practică</p>
               <p className="text-sm text-stone-600 italic">&ldquo;Transformă o piatră statică într-o bibliotecă de amintiri pentru toți cei care o vizitează.&rdquo;</p>
