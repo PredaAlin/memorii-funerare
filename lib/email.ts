@@ -143,6 +143,40 @@ export async function sendDeliveredNotification(data: OrderEmailData) {
   })
 }
 
+export async function sendAdminShippedQR(data: OrderEmailData) {
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(data.memorialUrl)}&size=400x400&margin=10`
+  const qrResponse = await fetch(qrApiUrl)
+  const qrBuffer = Buffer.from(await qrResponse.arrayBuffer())
+
+  const safeFilename = data.deceasedName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+
+  const content = `
+    <h1 style="margin:0 0 8px;font-size:22px;color:#1c1917">Placă Expediată — Cod QR Atașat</h1>
+    <p style="margin:0 0 24px;color:#78716c;font-size:14px;font-family:Arial,sans-serif">Comanda #${data.orderId.slice(-8).toUpperCase()} a fost marcată ca expediată. Codul QR pentru această placă este atașat.</p>
+
+    <div style="background:#f5f4f0;border-radius:12px;padding:20px 24px;margin-bottom:24px">
+      <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Memorial</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.deceasedName}</p>
+
+      <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Client</p>
+      <p style="margin:0 0 2px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.customerName}</p>
+      <p style="margin:0 0 16px;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.shippingAddress}, ${data.shippingCity}, ${data.shippingPostalCode}</p>
+
+      <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">URL Memorial</p>
+      <a href="${data.memorialUrl}" style="font-size:14px;color:#d97706;font-family:Arial,sans-serif">${data.memorialUrl}</a>
+    </div>
+
+    <a href="${BASE_URL}/admin" style="display:inline-block;background:#1c1917;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:14px;font-family:Arial,sans-serif;font-weight:bold">Vezi în Admin</a>
+  `
+  await resend.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `QR Expediat — ${data.deceasedName} (#${data.orderId.slice(-8).toUpperCase()})`,
+    html: baseLayout(content),
+    attachments: [{ filename: `qr-${safeFilename}.png`, content: qrBuffer }],
+  })
+}
+
 export async function sendShippedNotification(data: OrderEmailData) {
   const content = `
     <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Placa Ta a Fost Expediată</h1>
