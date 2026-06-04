@@ -24,7 +24,7 @@ All env vars live in `.env.local` (Next.js) and `.env` (Prisma CLI). Both files 
 |---|---|---|
 | `DATABASE_URL` | Neon PostgreSQL connection string | Neon dashboard |
 | `NEXTAUTH_SECRET` | JWT signing secret | `node -e "require('crypto').randomBytes(32).toString('base64')"` |
-| `NEXTAUTH_URL` | App base URL | `http://localhost:3000` locally, `https://memorii-funerare.vercel.app` in prod |
+| `NEXTAUTH_URL` | App base URL | `http://localhost:3000` locally, `https://eternalmemories.ro` in prod |
 | `STRIPE_SECRET_KEY` | Stripe API | dashboard.stripe.com/apikeys |
 | `STRIPE_PUBLISHABLE_KEY` | Stripe API | dashboard.stripe.com/apikeys |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing | Local: `stripe listen` output. Prod: Stripe dashboard → Webhooks |
@@ -42,7 +42,7 @@ After setting `DATABASE_URL`, run `npm run db:push` to create tables, then `npm 
 Create credentials at Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID (Web application). Add these **Authorized redirect URIs**:
 
 - `http://localhost:3000/api/auth/callback/google` (local)
-- `https://memorii-funerare.vercel.app/api/auth/callback/google` (production)
+- `https://eternalmemories.ro/api/auth/callback/google` (production)
 
 Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in both `.env.local` and Vercel env vars. Restart dev server after adding locally.
 
@@ -67,14 +67,14 @@ This is a **Next.js 15 App Router** app (TypeScript, Tailwind CSS v3, React 19).
 | `/cart` | Client | All cart state lives in CartContext |
 | `/editor?id=xxx` | Client | Reads cart item by ID from CartContext |
 | `/preview?id=xxx` | Client | Phone-mockup preview |
-| `/checkout` | Client | Redirects to Stripe Checkout |
-| `/success` | Client | Clears cart after Stripe redirect |
+| `/checkout` | Client | Payment method selector (card → Stripe, ramburs → direct); creates order |
+| `/success` | Client | Clears cart; shows ramburs note when `?ramburs=1` |
 | `/memorial/[id]` | **Dynamic SSR** | Key feature — server-rendered for QR scan visitors, no JS wait |
 | `/dashboard` | Dynamic SSR | Server component, fetches current user's orders from DB |
 | `/admin` | Dynamic SSR | Admin-only, fetches all orders from DB |
 | `/auth/signin` | Client | Combined sign-in/sign-up form |
-| `/reviews` | Static SSR | Public list of all verified-purchase reviews |
-| `/reviews/write` | Dynamic SSR | Server-validates order eligibility, renders client `ReviewForm` |
+| `/reviews` | Dynamic SSR | Public reviews list; checks session to show write/edit buttons |
+| `/reviews/write` | Dynamic SSR | Server-validates order eligibility; handles both create and edit |
 
 ### State management
 
@@ -84,7 +84,7 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 
 ### Key files
 
-- `app/layout.tsx` — Root layout with `Providers` (SessionProvider + CartProvider), Navigation, and footer. Uses `next/font/google` for Cinzel + Inter.
+- `app/layout.tsx` — Root layout with `Providers` (SessionProvider + CartProvider), Navigation, footer, and Organization JSON-LD schema. Uses `next/font/google` for Cinzel + Inter.
 - `contexts/CartContext.tsx` — Cart state, shipping info, validation logic, localStorage sync
 - `components/Providers.tsx` — Client wrapper for NextAuth + Cart providers
 - `components/Navigation.tsx` — Hides on `/memorial/*` routes. Shows Admin link only when `session.user.email === NEXT_PUBLIC_ADMIN_EMAIL`. Responsive: full link row on `md+`, hamburger dropdown on mobile.
@@ -94,16 +94,21 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 - `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview`); applies theme via inline styles
 - `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Five themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
 - `app/admin/page.tsx` — Thin server shell: auth check, DB fetch, date serialization, renders `AdminDashboard`
-- `app/admin/AdminDashboard.tsx` — Client component: period filter (Azi/Această lună/Acest an/Toate), 4 stat cards (revenue, total, de expediat, livrate), status filter pills, filtered orders list. Stats update live when status changes.
+- `app/admin/AdminDashboard.tsx` — Client component: period filter (Azi/Această lună/Acest an/Toate), 4 stat cards (revenue, total, de expediat, livrate), status filter pills, filtered orders list. Stats update live when status changes. Ramburs orders show an amber "Ramburs" badge.
 - `app/admin/StatusSelect.tsx` — Client component dropdown to update order status in place; accepts optional `onChange` callback so parent dashboard can sync stats
-- `lib/auth.ts` — NextAuth v4 config (JWT strategy, credentials provider)
+- `lib/auth.ts` — NextAuth v4 config (JWT strategy, credentials provider + Google OAuth)
 - `lib/db.ts` — Prisma singleton (global pattern to avoid connection leaks in dev)
 - `lib/stripe.ts` — Lazy Stripe client (`getStripe()` function, not module-level constant)
-- `lib/email.ts` — Resend email helpers: `sendPaymentConfirmation`, `sendAdminNewOrder`, `sendShippedNotification`, `sendDeliveredNotification`, `buildOrderEmailData`
-- `prisma/schema.prisma` — `User`, `Memorial`, `Order`, `Review` + NextAuth tables. `Memorial` has `theme String @default("clasic")`. `Review` has `orderId @unique` (one review per order) with cascade deletes on both `userId` and `orderId`.
-- `app/reviews/page.tsx` — SSR public reviews list with avg rating
-- `app/reviews/write/page.tsx` — Server shell: auth check, order eligibility check, duplicate check; renders `ReviewForm`
-- `app/reviews/write/ReviewForm.tsx` — Client component: interactive star picker, textarea, POST to `/api/reviews`
+- `lib/email.ts` — Resend email helpers: `sendPaymentConfirmation`, `sendAdminNewOrder`, `sendShippedNotification`, `sendAdminShippedQR`, `sendDeliveredNotification`, `buildOrderEmailData`
+- `prisma/schema.prisma` — `User`, `Memorial`, `Order`, `Review` + NextAuth tables. `Memorial` has `theme String @default("clasic")`. `Order` has `paymentMethod String @default("card")` (`"card"` | `"ramburs"`). `Review` has `orderId @unique` (one review per order) with cascade deletes on both `userId` and `orderId`.
+- `app/reviews/page.tsx` — Dynamic SSR: public reviews list with avg rating, seed reviews, "Scrie o recenzie" button (only when session user has an eligible delivered order), "Editează" link on own reviews
+- `app/reviews/write/page.tsx` — Server shell: auth check, order eligibility check; if review already exists passes it as `existing` prop to `ReviewForm` (edit mode), otherwise create mode
+- `app/reviews/write/ReviewForm.tsx` — Client component: interactive star picker, textarea, POST to `/api/reviews` (create) or PATCH to `/api/reviews/[id]` (edit); detects mode via `existing` prop
+- `app/sitemap.ts` — Auto-generates `/sitemap.xml` with homepage and reviews page
+- `app/robots.ts` — Auto-generates `/robots.txt`; disallows `/admin`, `/dashboard`, `/api/`, `/checkout`, `/success`, `/editor`, `/preview`
+- `app/opengraph-image.tsx` — Edge runtime dynamic OG image (1200×630, dark stone background with logo and tagline)
+- `app/icon.svg` — Favicon: diamond/square logo matching the navbar, dark background with amber inner square
+- `public/gravestone.jpg` — Local cemetery photo (1400×930, 199KB JPEG); used on homepage via Next.js `<Image>`
 - `types/next-auth.d.ts` — Adds `user.id` to the NextAuth Session type
 
 ### API routes
@@ -114,11 +119,12 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 | `GET/POST /api/auth/[...nextauth]` | — | NextAuth handler |
 | `GET/POST /api/memorials` | Required | List / create memorials |
 | `GET/PATCH /api/memorials/[id]` | Owner only | Read / update a memorial |
-| `POST /api/orders` | Required | Upload media → create Memorial + Order → return Stripe Checkout URL |
-| `POST /api/webhooks/stripe` | Stripe sig | Marks orders paid, publishes memorials, sends confirmation emails |
-| `PATCH /api/admin/orders/[id]` | Admin only | Update order status; sends shipped email on → `shipped`, delivered email on → `delivered` |
+| `POST /api/orders` | Required | Upload media → create Memorial + Order → for `card`: return Stripe Checkout URL; for `ramburs`: publish memorial immediately, set status `paid`, send emails, return `/success?ramburs=1` |
+| `POST /api/webhooks/stripe` | Stripe sig | Marks card orders paid, publishes memorials, sends confirmation emails (ramburs orders are never touched here — no `stripeSessionId`) |
+| `PATCH /api/admin/orders/[id]` | Admin only | Update order status; on → `shipped` sends customer notification + admin QR email; on → `delivered` sends customer thank-you + review link |
 | `GET /api/reviews` | — | Public list of all reviews (author anonymised to first name + initial) |
 | `POST /api/reviews` | Required | Submit review — validates delivered order ownership, one per order |
+| `PATCH /api/reviews/[id]` | Owner only | Edit existing review — validates ownership before updating rating + body |
 
 ### Admin access
 
@@ -126,15 +132,19 @@ Admin routes are protected by checking `session.user.email === process.env.ADMIN
 
 ### Email flow (Resend)
 
-Three transactional emails are sent via `lib/email.ts`:
+Five transactional email triggers via `lib/email.ts`:
 
 | Trigger | Recipients | Template |
 |---|---|---|
+| Ramburs order creation (`POST /api/orders`) | Customer + Admin | Confirmation (notes "vei achita la livrare") + admin new-order (subject tagged `[RAMBURS]`) |
 | Stripe `checkout.session.completed` webhook | Customer + Admin | Payment confirmation + new order notification |
 | Admin changes order status → `shipped` | Customer | Shipping notification |
+| Admin changes order status → `shipped` | Admin | QR code PNG attached (`qr-<name>.png`) + memorial URL + shipping address |
 | Admin changes order status → `delivered` | Customer | Thank-you + review request with link to `/reviews/write?orderId=xxx` |
 
-**Critical pattern:** emails in the webhook are wrapped in `Promise.allSettled` so Resend failures never cause a webhook 500 (which would trigger Stripe retries). The shipped email in the PATCH route is fire-and-forget (`.catch` only logs).
+**Critical pattern:** emails in the webhook are wrapped in `Promise.allSettled` so Resend failures never cause a webhook 500 (which would trigger Stripe retries). Ramburs confirmation emails are also wrapped in `Promise.allSettled`. All emails in the admin PATCH route are fire-and-forget (`.catch` only logs).
+
+`sendPaymentConfirmation` and `sendAdminNewOrder` both accept `paymentMethod` via `OrderEmailData` and adjust their wording accordingly.
 
 Use `buildOrderEmailData(order)` from `lib/email.ts` to map a Prisma order+memorial object to `OrderEmailData` — do not inline this mapping again.
 
@@ -142,21 +152,43 @@ Use `buildOrderEmailData(order)` from `lib/email.ts` to map a Prisma order+memor
 
 QR codes are generated on the fly via `https://api.qrserver.com/v1/create-qr-code/?data=...&size=200x200&margin=10`. They encode the full memorial URL (`NEXTAUTH_URL/memorial/[id]`). No QR library is installed. Both `/dashboard` and `/admin` define a local `memorialUrl(id)` and `qrUrl(id)` helper — these are intentionally local (one-liners, no shared state needed).
 
+The admin shipped QR email uses size `400x400` and fetches the PNG as a buffer to attach to the email via Resend's `attachments` field.
+
+### Reviews system
+
+- Only users with a `delivered` order can write a review (validated server-side on both the page and the API)
+- One review per order (`orderId @unique` in schema)
+- Author anonymised to "Prenume I." in public display
+- `/reviews` page includes 3 hardcoded seed reviews (`SEED_REVIEWS` constant) so the page is never empty
+- The "Scrie o recenzie" button on `/reviews` only renders when the signed-in user has an eligible delivered order with no review yet; it pre-fills `?orderId=xxx`
+- Users can edit their own review via the "Editează" link on their card; `/reviews/write?orderId=xxx` detects the existing review and switches to edit mode
+- The `sendDeliveredNotification` email includes a direct link to `/reviews/write?orderId=xxx`
+
 ### Checkout flow
 
 1. User adds plan(s) to cart (no auth required)
-2. Cart page: fill shipping form + set up memorial via editor → "Proceed to Payment"
-3. Checkout page (`/checkout`): `POST /api/orders` — base64 media uploaded to Blob, records created in DB, Stripe session created
-4. User completes Stripe hosted checkout → redirect to `/success?session_id=xxx`
-5. Stripe webhook fires → orders marked paid, memorials published, confirmation emails sent
-6. `/dashboard` shows the memorial with QR code; `/admin` shows all orders
+2. Cart page: fill shipping form + set up memorial via editor → "Continuă la Plată"
+3. Checkout page (`/checkout`): user selects payment method — **card** or **ramburs** — then `POST /api/orders` with `paymentMethod`
 
-The cart validates that all memorial pages are configured before allowing checkout ("PLEASE COMPLETE ALL FORMS AND MEMORIAL PAGES").
+**Card path:**
+- Base64 media uploaded to Blob, Memorial + Order created (`status: 'pending'`, `isPublished: false`)
+- Stripe Checkout session created → user redirected to Stripe
+- Stripe webhook fires → orders marked `paid`, memorials published, confirmation emails sent
+- `/success?session_id=xxx`
+
+**Ramburs path:**
+- Same media upload + record creation, but `status: 'paid'`, `isPublished: true` immediately
+- Confirmation emails sent on the spot (wrapped in `Promise.allSettled`)
+- `/success?ramburs=1` — shows "Vei achita suma curierului la primirea coletului." note
+
+4. `/dashboard` shows the memorial with QR code; `/admin` shows all orders with a Ramburs badge on COD orders
+
+The cart validates that all memorial pages are configured before allowing checkout.
 
 ### Plans
 
-- **Basic** (149.99 lei) — photos only, 100MB simulated storage, 10-year hosting
-- **Premium** (199.99 lei) — photos + videos, 300MB simulated storage, lifetime hosting
+- **Memorial de Bază** (149.99 lei) — photos only, 100MB simulated storage, 10-year hosting
+- **Moștenire Premium** (199.99 lei) — photos + videos, 300MB simulated storage, lifetime hosting
 
 Prices are defined in `contexts/CartContext.tsx` (`PRICES` constant). Currency is RON (`'ron'`) in the Stripe checkout session.
 
@@ -174,13 +206,24 @@ Memorial pages support five visual themes selectable in the editor's "Temă" tab
 
 Themes are implemented as inline CSS styles (not Tailwind classes) so all color variants are available at runtime without a Tailwind purge concern. The `theme` value is stored in `MemorialContent.theme` (cart/editor), persisted to `Memorial.theme` in the DB, and read by both `MemorialPreview` and `MemorialView` via `getTheme()` from `lib/themes.ts`. To add a new theme, add an entry to the `THEMES` array in `lib/themes.ts` — no other changes needed.
 
+### SEO
+
+- **Metadata:** root layout sets title template (`%s | Eternal Memories`), description, OG, Twitter card, `lang="ro"`, `metadataBase`. Pages override with page-specific titles/descriptions.
+- **JSON-LD schemas:** Organization in root layout; Product + ItemList on homepage; AggregateRating on `/reviews` (uses live + seed data)
+- **Sitemap:** `app/sitemap.ts` → auto-served at `/sitemap.xml`
+- **Robots:** `app/robots.ts` → auto-served at `/robots.txt`; private routes are disallowed
+- **OG image:** `app/opengraph-image.tsx` (edge runtime, 1200×630)
+- **Favicon:** `app/icon.svg` (Next.js picks up automatically)
+- **Google Search Console:** domain verified via DNS TXT record (managed in Vercel DNS). Sitemap submitted at `https://eternalmemories.ro/sitemap.xml`.
+
 ## Deployment
 
 - **Platform:** Vercel (connected to GitHub repo `PredaAlin/memorii-funerare`, auto-deploys on push to `main`)
+- **Custom domain:** `eternalmemories.ro` — DNS managed via Vercel nameservers (ns1/ns2.vercel-dns.com set in ROTLD). `www` redirects to apex.
 - **Database:** Neon PostgreSQL (cloud, accessible from both local dev and Vercel)
 - **Media:** Vercel Blob
 - **Emails:** Resend (`onboarding@resend.dev` sender — works for testing; needs verified domain for unrestricted production sending)
-- **Production URL:** `https://memorii-funerare.vercel.app`
+- **Production URL:** `https://eternalmemories.ro`
 
 All env vars must be set in Vercel dashboard as well as `.env.local`. The `.env` file (Prisma-only, gitignored) only needs `DATABASE_URL` locally.
 
@@ -213,3 +256,7 @@ This project was originally a single-file Vite + React app (`index.tsx` + `index
 DELETE FROM "Order" WHERE "userId" = '<user-id>';
 DELETE FROM "User" WHERE id = '<user-id>';
 ```
+
+**Use JPEG not PNG for large static images.** A 2.2MB PNG in `public/` caused `INVALID_IMAGE_OPTIMIZE_REQUEST` on Vercel's image optimization. Convert large images to JPEG before committing: `node -e "require('sharp')('public/img.png').resize(1400).jpeg({quality:82}).toFile('public/img.jpg')"`. Sharp is available as a Next.js dependency.
+
+**Terminology: use "Memorial" not "Memoriu".** All user-facing strings use "Memorial" (e.g. "Memorial de Bază", "Memorial fără titlu", "Memorialele mele"). Do not reintroduce the old "Memoriu" spelling.
