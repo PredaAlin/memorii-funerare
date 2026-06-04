@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { buildOrderEmailData, sendAdminShippedQR, sendDeliveredNotification, sendShippedNotification } from '@/lib/email'
+import { buildOrderEmailData, sendDeliveredNotification, sendShippedNotification } from '@/lib/email'
 
 const VALID_STATUSES = ['pending', 'paid', 'shipped', 'delivered']
 
@@ -29,12 +29,8 @@ export async function PATCH(
   })
 
   if (status === 'shipped') {
-    const emailData = buildOrderEmailData(order)
-    sendShippedNotification(emailData).catch((err) =>
+    sendShippedNotification(buildOrderEmailData(order)).catch((err) =>
       console.error('Failed to send shipped notification:', err)
-    )
-    sendAdminShippedQR(emailData).catch((err) =>
-      console.error('Failed to send admin QR email:', err)
     )
   }
 
