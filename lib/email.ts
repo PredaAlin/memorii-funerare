@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = 'Eternal Memories <onboarding@resend.dev>'
+const FROM = 'Eternal Memories <noreply@eternalmemories.ro>'
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL!
 const BASE_URL = process.env.NEXTAUTH_URL!
 
