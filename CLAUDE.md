@@ -100,7 +100,7 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 - `lib/auth.ts` — NextAuth v4 config (JWT strategy, credentials provider + Google OAuth)
 - `lib/db.ts` — Prisma singleton (global pattern to avoid connection leaks in dev)
 - `lib/stripe.ts` — Lazy Stripe client (`getStripe()` function, not module-level constant)
-- `lib/email.ts` — Resend email helpers: `sendPaymentConfirmation`, `sendAdminNewOrder`, `sendShippedNotification`, `sendAdminShippedQR`, `sendDeliveredNotification`, `buildOrderEmailData`
+- `lib/email.ts` — Resend email helpers: `sendPaymentConfirmation`, `sendAdminNewOrder` (includes QR attachment), `sendShippedNotification`, `sendDeliveredNotification`, `buildOrderEmailData`
 - `prisma/schema.prisma` — `User`, `Memorial`, `Order`, `Review` + NextAuth tables. `Memorial` has `theme String @default("clasic")`. `Order` has `paymentMethod String @default("card")` (`"card"` | `"ramburs"`). `Review` has `orderId @unique` (one review per order) with cascade deletes on both `userId` and `orderId`.
 - `app/reviews/page.tsx` — Dynamic SSR: public reviews list with avg rating, seed reviews, "Scrie o recenzie" button (only when session user has an eligible delivered order), "Editează" link on own reviews
 - `app/reviews/write/page.tsx` — Server shell: auth check, order eligibility check; if review already exists passes it as `existing` prop to `ReviewForm` (edit mode), otherwise create mode
@@ -134,17 +134,20 @@ Admin routes are protected by checking `session.user.email === process.env.ADMIN
 
 ### Email flow (Resend)
 
-Five transactional email triggers via `lib/email.ts`:
+Four transactional email triggers via `lib/email.ts`:
 
-| Trigger | Recipients | Template |
+| Trigger | Customer | Admin |
 |---|---|---|
-| Ramburs order creation (`POST /api/orders`) | Customer + Admin | Confirmation (notes "vei achita la livrare") + admin new-order (subject tagged `[RAMBURS]`) |
-| Stripe `checkout.session.completed` webhook | Customer + Admin | Payment confirmation + new order notification |
-| Admin changes order status → `shipped` | Customer | Shipping notification |
-| Admin changes order status → `shipped` | Admin | QR code PNG attached (`qr-<name>.png`) + memorial URL + shipping address |
-| Admin changes order status → `delivered` | Customer | Thank-you + review request with link to `/reviews/write?orderId=xxx` |
+| Order placed — card (Stripe webhook) | `sendPaymentConfirmation` | `sendAdminNewOrder` + QR PNG attached |
+| Order placed — ramburs (`POST /api/orders`) | `sendPaymentConfirmation` (notes "vei achita la livrare") | `sendAdminNewOrder` [RAMBURS] + QR PNG attached |
+| Admin changes status → `shipped` | `sendShippedNotification` | — |
+| Admin changes status → `delivered` | `sendDeliveredNotification` + review link | — |
 
-**Critical pattern:** emails in the webhook are wrapped in `Promise.allSettled` so Resend failures never cause a webhook 500 (which would trigger Stripe retries). Ramburs confirmation emails are also wrapped in `Promise.allSettled`. All emails in the admin PATCH route are fire-and-forget (`.catch` only logs).
+Admin always receives the QR code (`qr-<name>.png`, 400×400) at order creation — not at shipment. This allows engraving to start immediately.
+
+**Sender:** `noreply@eternalmemories.ro` — requires domain verified in Resend. The old `onboarding@resend.dev` sender only delivered to the Resend account owner's address.
+
+**Critical pattern:** emails in the webhook are wrapped in `Promise.allSettled` so Resend failures never cause a webhook 500 (which would trigger Stripe retries). Ramburs confirmation emails use the same pattern. All emails in the admin PATCH route are fire-and-forget (`.catch` only logs).
 
 `sendPaymentConfirmation` and `sendAdminNewOrder` both accept `paymentMethod` via `OrderEmailData` and adjust their wording accordingly.
 
