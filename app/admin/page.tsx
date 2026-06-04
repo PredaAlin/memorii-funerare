@@ -20,6 +20,7 @@ export default async function AdminPage() {
     id: o.id,
     status: o.status,
     price: o.price,
+    paymentMethod: o.paymentMethod,
     createdAt: o.createdAt.toISOString(),
     shippingName: o.shippingName,
     shippingEmail: o.shippingEmail,

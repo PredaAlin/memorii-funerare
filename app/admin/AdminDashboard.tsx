@@ -18,6 +18,7 @@ interface Order {
   id: string
   status: string
   price: number
+  paymentMethod: string
   createdAt: string
   shippingName: string
   shippingEmail: string
@@ -245,10 +246,15 @@ export function AdminDashboard({ initialOrders, baseUrl }: Props) {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusCardColor[order.status] || 'bg-stone-50 text-stone-500'}`}>
                       {statusLabel[order.status] || order.status}
                     </span>
+                    {order.paymentMethod === 'ramburs' && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700">
+                        Ramburs
+                      </span>
+                    )}
                     <p className="text-xs text-stone-400">
                       #{order.id.slice(-8).toUpperCase()} · {new Date(order.createdAt).toLocaleDateString('ro-RO', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>

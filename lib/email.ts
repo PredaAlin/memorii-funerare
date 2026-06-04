@@ -17,6 +17,7 @@ type OrderEmailData = {
   shippingPostalCode: string
   memorialId: string
   memorialUrl: string
+  paymentMethod?: string
 }
 
 type OrderWithMemorial = {
@@ -29,6 +30,7 @@ type OrderWithMemorial = {
   shippingCity: string
   shippingPostalCode: string
   memorialId: string
+  paymentMethod?: string
   memorial: { id: string; deceasedName: string }
 }
 
@@ -45,6 +47,7 @@ export function buildOrderEmailData(order: OrderWithMemorial): OrderEmailData {
     shippingPostalCode: order.shippingPostalCode,
     memorialId: order.memorial.id,
     memorialUrl: `${BASE_URL}/memorial/${order.memorial.id}`,
+    paymentMethod: order.paymentMethod,
   }
 }
 
@@ -69,6 +72,7 @@ function baseLayout(content: string) {
 }
 
 export async function sendPaymentConfirmation(data: OrderEmailData) {
+  const isRamburs = data.paymentMethod === 'ramburs'
   const content = `
     <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Comandă Confirmată</h1>
     <p style="margin:0 0 24px;color:#78716c;font-size:15px;font-family:Arial,sans-serif">Mulțumim, ${data.customerName}. Placa ta memorială este în curs de pregătire.</p>
@@ -78,6 +82,8 @@ export async function sendPaymentConfirmation(data: OrderEmailData) {
       <p style="margin:0 0 16px;font-size:18px;color:#1c1917;font-weight:bold">${data.deceasedName}</p>
       <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Plan</p>
       <p style="margin:0 0 16px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Moștenire Premium' : 'Memorial de Bază'} — ${data.price.toFixed(2)} lei</p>
+      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Plată</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${isRamburs ? 'Ramburs — vei achita la livrare' : 'Card online'}</p>
       <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Livrare către</p>
       <p style="margin:0;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.shippingAddress}, ${data.shippingCity}, ${data.shippingPostalCode}</p>
     </div>
@@ -96,9 +102,10 @@ export async function sendPaymentConfirmation(data: OrderEmailData) {
 }
 
 export async function sendAdminNewOrder(data: OrderEmailData) {
+  const isRamburs = data.paymentMethod === 'ramburs'
   const content = `
     <h1 style="margin:0 0 8px;font-size:22px;color:#1c1917">Comandă Nouă Primită</h1>
-    <p style="margin:0 0 24px;color:#78716c;font-size:14px;font-family:Arial,sans-serif">Comandă #${data.orderId.slice(-8).toUpperCase()} — ${data.price.toFixed(2)} lei</p>
+    <p style="margin:0 0 24px;color:#78716c;font-size:14px;font-family:Arial,sans-serif">Comandă #${data.orderId.slice(-8).toUpperCase()} — ${data.price.toFixed(2)} lei${isRamburs ? ' &nbsp;<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:bold;letter-spacing:1px">RAMBURS</span>' : ''}</p>
 
     <div style="background:#f5f4f0;border-radius:12px;padding:20px 24px;margin-bottom:16px">
       <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Client</p>
@@ -109,6 +116,9 @@ export async function sendAdminNewOrder(data: OrderEmailData) {
       <p style="margin:0 0 2px;font-size:15px;color:#1c1917;font-family:Arial,sans-serif">${data.deceasedName}</p>
       <p style="margin:0 0 16px;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.plan === 'premium' ? 'Moștenire Premium' : 'Memorial de Bază'}</p>
 
+      <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Plată</p>
+      <p style="margin:0 0 16px;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${isRamburs ? 'Ramburs — de încasat la livrare' : 'Card online — plătit'}</p>
+
       <p style="margin:0 0 4px;font-size:12px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Livrare către</p>
       <p style="margin:0;font-size:14px;color:#57534e;font-family:Arial,sans-serif">${data.shippingAddress}, ${data.shippingCity}, ${data.shippingPostalCode}</p>
     </div>
@@ -118,7 +128,7 @@ export async function sendAdminNewOrder(data: OrderEmailData) {
   await resend.emails.send({
     from: FROM,
     to: ADMIN_EMAIL,
-    subject: `Comandă nouă: ${data.deceasedName} — ${data.price.toFixed(2)} lei`,
+    subject: `Comandă nouă${isRamburs ? ' [RAMBURS]' : ''}: ${data.deceasedName} — ${data.price.toFixed(2)} lei`,
     html: baseLayout(content),
   })
 }

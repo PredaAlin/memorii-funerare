@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getStripe } from '@/lib/stripe'
 import { put } from '@vercel/blob'
+import { buildOrderEmailData, sendPaymentConfirmation, sendAdminNewOrder } from '@/lib/email'
 import { CartItem, ShippingInfo } from '@/types'
 
 // Convert a base64 data URL to a Vercel Blob URL
@@ -25,9 +26,16 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { cart, shippingInfo }: { cart: CartItem[]; shippingInfo: ShippingInfo } = await req.json()
+  const { cart, shippingInfo, paymentMethod = 'card' }: { cart: CartItem[]; shippingInfo: ShippingInfo; paymentMethod?: string } = await req.json()
 
   if (!cart?.length) return NextResponse.json({ error: 'Cart is empty' }, { status: 400 })
+  if (!['card', 'ramburs'].includes(paymentMethod)) {
+    return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 })
+  }
+
+  const isRamburs = paymentMethod === 'ramburs'
+  const baseUrl = process.env.NEXTAUTH_URL
+  if (!baseUrl) throw new Error('NEXTAUTH_URL is not set')
 
   // Create Memorial + Order records, upload media to blob
   const orderIds: string[] = []
@@ -52,7 +60,7 @@ export async function POST(req: NextRequest) {
         videoUrls,
         profilePhotoUrl,
         bannerPhotoUrl,
-        isPublished: false,
+        isPublished: isRamburs, // publish immediately for ramburs; card waits for Stripe webhook
       },
     })
 
@@ -62,7 +70,8 @@ export async function POST(req: NextRequest) {
         memorialId: memorial.id,
         plan: item.memorialData.plan,
         price: item.price,
-        status: 'pending',
+        status: isRamburs ? 'paid' : 'pending',
+        paymentMethod,
         shippingName: shippingInfo.fullName,
         shippingEmail: shippingInfo.email,
         shippingPhone: shippingInfo.phone,
@@ -74,7 +83,25 @@ export async function POST(req: NextRequest) {
     orderIds.push(order.id)
   }
 
-  // Create Stripe Checkout session
+  // Ramburs: send confirmation emails and return success URL directly
+  if (isRamburs) {
+    const orders = await db.order.findMany({
+      where: { id: { in: orderIds } },
+      include: { memorial: true },
+    })
+    await Promise.allSettled(
+      orders.map(order => {
+        const emailData = buildOrderEmailData(order)
+        return Promise.all([
+          sendPaymentConfirmation(emailData),
+          sendAdminNewOrder(emailData),
+        ])
+      })
+    )
+    return NextResponse.json({ url: `${baseUrl}/success?ramburs=1` })
+  }
+
+  // Card: create Stripe Checkout session
   const lineItems = cart.map(item => ({
     price_data: {
       currency: 'ron',
@@ -89,9 +116,6 @@ export async function POST(req: NextRequest) {
     quantity: 1,
   }))
 
-  const baseUrl = process.env.NEXTAUTH_URL
-  if (!baseUrl) throw new Error('NEXTAUTH_URL is not set')
-
   const stripeSession = await getStripe().checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: lineItems,
@@ -102,7 +126,6 @@ export async function POST(req: NextRequest) {
     metadata: { orderIds: orderIds.join(',') },
   })
 
-  // Save session ID to all orders
   await db.order.updateMany({
     where: { id: { in: orderIds } },
     data: { stripeSessionId: stripeSession.id },

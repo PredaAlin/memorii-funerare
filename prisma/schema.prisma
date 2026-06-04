@@ -97,6 +97,7 @@ model Order {
   shippingCity       String
   shippingPostalCode String
   stripeSessionId    String?
+  paymentMethod      String   @default("card") // 'card' | 'ramburs'
   review             Review?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

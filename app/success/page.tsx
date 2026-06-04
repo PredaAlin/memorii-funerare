@@ -19,6 +19,7 @@ function SuccessContent() {
   }, [cleared, clearCart])
 
   const sessionId = searchParams.get('session_id')
+  const isRamburs = searchParams.get('ramburs') === '1'
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-24 text-center">
@@ -34,6 +35,11 @@ function SuccessContent() {
           : 'Îți mulțumim pentru comandă. Plăcile tale personalizate sunt acum în curs de inscripționare.'
         }
       </p>
+      {isRamburs && (
+        <p className="text-amber-700 bg-amber-50 border border-amber-200 rounded-2xl px-6 py-4 mb-6 font-medium text-sm inline-block">
+          Vei achita suma curierului la primirea coletului.
+        </p>
+      )}
       {shippingInfo.email && (
         <p className="text-stone-500 mb-12">Un link de urmărire va fi trimis la <strong>{shippingInfo.email}</strong>.</p>
       )}
