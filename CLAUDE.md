@@ -94,7 +94,8 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 - `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview`); applies theme via inline styles
 - `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Five themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
 - `app/admin/page.tsx` — Thin server shell: auth check, DB fetch, date serialization, renders `AdminDashboard`
-- `app/admin/AdminDashboard.tsx` — Client component: period filter (Azi/Această lună/Acest an/Toate), 4 stat cards (revenue, total, de expediat, livrate), status filter pills, filtered orders list. Stats update live when status changes. Ramburs orders show an amber "Ramburs" badge.
+- `app/admin/AdminDashboard.tsx` — Client component: period filter (Azi/Această lună/Acest an/Toate), orders chart, 4 stat cards (revenue, total, de expediat, livrate), status filter pills, filtered orders list. Stats and chart update live when status changes or orders are deleted. Ramburs orders show an amber "Ramburs" badge. Each order card has an inline-confirm delete button.
+- `app/admin/OrdersChart.tsx` — Bar chart (Recharts) showing orders grouped by day (Săptămână/Lună) or by month (An). Data is aggregated client-side from the orders already in state — no extra DB query.
 - `app/admin/StatusSelect.tsx` — Client component dropdown to update order status in place; accepts optional `onChange` callback so parent dashboard can sync stats
 - `lib/auth.ts` — NextAuth v4 config (JWT strategy, credentials provider + Google OAuth)
 - `lib/db.ts` — Prisma singleton (global pattern to avoid connection leaks in dev)
@@ -122,6 +123,7 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 | `POST /api/orders` | Required | Upload media → create Memorial + Order → for `card`: return Stripe Checkout URL; for `ramburs`: publish memorial immediately, set status `paid`, send emails, return `/success?ramburs=1` |
 | `POST /api/webhooks/stripe` | Stripe sig | Marks card orders paid, publishes memorials, sends confirmation emails (ramburs orders are never touched here — no `stripeSessionId`) |
 | `PATCH /api/admin/orders/[id]` | Admin only | Update order status; on → `shipped` sends customer notification + admin QR email; on → `delivered` sends customer thank-you + review link |
+| `DELETE /api/admin/orders/[id]` | Admin only | Delete order (cascades to Review) then deletes the associated Memorial |
 | `GET /api/reviews` | — | Public list of all reviews (author anonymised to first name + initial) |
 | `POST /api/reviews` | Required | Submit review — validates delivered order ownership, one per order |
 | `PATCH /api/reviews/[id]` | Owner only | Edit existing review — validates ownership before updating rating + body |
