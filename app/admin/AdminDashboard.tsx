@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import StatusSelect from './StatusSelect'
+import { OrdersChart } from './OrdersChart'
 
 type Period = 'today' | 'month' | 'year' | 'all'
 type StatusFilter = 'all' | 'pending' | 'paid' | 'shipped' | 'delivered'
@@ -82,6 +83,8 @@ export function AdminDashboard({ initialOrders, baseUrl }: Props) {
   const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [period, setPeriod] = useState<Period>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const memorialUrl = (id: string) => `${baseUrl}/memorial/${id}`
   const qrUrl = (id: string) =>
@@ -89,6 +92,17 @@ export function AdminDashboard({ initialOrders, baseUrl }: Props) {
 
   const handleStatusChange = (orderId: string, newStatus: string) => {
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
+  }
+
+  const handleDelete = async (orderId: string) => {
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, { method: 'DELETE' })
+      if (res.ok) setOrders(prev => prev.filter(o => o.id !== orderId))
+    } finally {
+      setDeleting(false)
+      setConfirmDeleteId(null)
+    }
   }
 
   const periodOrders = useMemo(() => filterByPeriod(orders, period), [orders, period])
@@ -135,6 +149,9 @@ export function AdminDashboard({ initialOrders, baseUrl }: Props) {
           </button>
         ))}
       </div>
+
+      {/* Orders chart */}
+      <OrdersChart orders={orders} />
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -225,11 +242,40 @@ export function AdminDashboard({ initialOrders, baseUrl }: Props) {
                         {order.memorial.plan === 'premium' ? 'Moștenire Premium' : 'Memorial de Bază'} · {order.price.toFixed(2)} lei
                       </p>
                     </div>
-                    <StatusSelect
-                      orderId={order.id}
-                      current={order.status}
-                      onChange={newStatus => handleStatusChange(order.id, newStatus)}
-                    />
+                    <div className="flex items-center gap-2">
+                      <StatusSelect
+                        orderId={order.id}
+                        current={order.status}
+                        onChange={newStatus => handleStatusChange(order.id, newStatus)}
+                      />
+                      {confirmDeleteId === order.id ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDelete(order.id)}
+                            disabled={deleting}
+                            className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-full hover:bg-red-700 disabled:opacity-50 transition-all"
+                          >
+                            {deleting ? '...' : 'Confirmă'}
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeleteId(null)}
+                            className="px-3 py-1.5 bg-stone-100 text-stone-600 text-xs font-bold rounded-full hover:bg-stone-200 transition-all"
+                          >
+                            Anulează
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDeleteId(order.id)}
+                          className="p-2 text-stone-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                          title="Șterge comanda"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm">

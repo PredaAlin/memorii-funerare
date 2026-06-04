@@ -46,3 +46,24 @@ export async function PATCH(
 
   return NextResponse.json(order)
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getServerSession(authOptions)
+  if (session?.user?.email !== process.env.ADMIN_EMAIL) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const { id } = await params
+
+  const order = await db.order.findUnique({ where: { id } })
+  if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  // Delete order first (cascades to Review), then the orphaned memorial
+  await db.order.delete({ where: { id } })
+  await db.memorial.delete({ where: { id: order.memorialId } })
+
+  return NextResponse.json({ deleted: id })
+}
