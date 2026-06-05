@@ -1,4 +1,5 @@
 import { getTheme } from '@/lib/themes'
+import { ImageGalleryCarousel } from '@/components/ImageGalleryCarousel'
 
 interface MemorialData {
   deceasedName: string
@@ -95,14 +96,7 @@ export function MemorialView({ memorial }: MemorialViewProps) {
             >
               Galerie
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {memorial.mediaUrls.map((url, i) => (
-                <div key={i} className="aspect-square rounded-xl overflow-hidden" style={{ background: c.surface }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} className="w-full h-full object-cover" alt="" />
-                </div>
-              ))}
-            </div>
+            <ImageGalleryCarousel urls={memorial.mediaUrls} colors={c} />
           </div>
         )}
 
