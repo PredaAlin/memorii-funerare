@@ -10,6 +10,27 @@ interface MemorialEditorProps {
   onCancel: () => void
 }
 
+function compressImage(file: File, maxWidth: number, quality = 0.82): Promise<string> {
+  return new Promise(resolve => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      let { width, height } = img
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width)
+        width = maxWidth
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+      resolve(canvas.toDataURL('image/jpeg', quality))
+    }
+    img.src = url
+  })
+}
+
 export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onSave, onCancel }) => {
   const [data, setData] = useState<MemorialContent>(initialData)
   const [activeTab, setActiveTab] = useState<'details' | 'tema' | 'media' | 'videos'>('details')
@@ -18,23 +39,22 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
   const currentSize = (data.media.length * 2) + (data.videos.length * 15)
   const progress = (currentSize / maxStorage) * 100
 
-const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
     const files = e.target.files
     if (!files) return
     if (currentSize >= maxStorage) {
       alert('Limita de stocare pentru acest plan a fost atinsă.')
       return
     }
-    Array.from(files).forEach(file => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        if (type === 'image') {
-          setData(prev => ({ ...prev, media: [...prev.media, reader.result as string] }))
-        } else {
-          setData(prev => ({ ...prev, videos: [...prev.videos, reader.result as string] }))
-        }
+    Array.from(files).forEach(async file => {
+      if (type === 'image') {
+        const compressed = await compressImage(file, 1200)
+        setData(prev => ({ ...prev, media: [...prev.media, compressed] }))
+      } else {
+        const reader = new FileReader()
+        reader.onloadend = () => setData(prev => ({ ...prev, videos: [...prev.videos, reader.result as string] }))
+        reader.readAsDataURL(file)
       }
-      reader.readAsDataURL(file)
     })
   }
 
@@ -97,12 +117,11 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
                 <div>
                   <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Fotografie Profil</label>
                   <label className="relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl border-2 border-dashed border-stone-200 cursor-pointer hover:bg-stone-50 transition-all group overflow-hidden">
-                    <input type="file" className="hidden" accept="image/*" onChange={e => {
+                    <input type="file" className="hidden" accept="image/*" onChange={async e => {
                       const file = e.target.files?.[0]
                       if (!file) return
-                      const reader = new FileReader()
-                      reader.onloadend = () => setData(prev => ({ ...prev, profilePhoto: reader.result as string }))
-                      reader.readAsDataURL(file)
+                      const compressed = await compressImage(file, 800)
+                      setData(prev => ({ ...prev, profilePhoto: compressed }))
                     }} />
                     {data.profilePhoto ? (
                       <>
@@ -121,12 +140,11 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' 
                 <div>
                   <label className="block text-xs font-bold text-stone-500 uppercase tracking-tighter mb-2">Fotografie Copertă</label>
                   <label className="relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl border-2 border-dashed border-stone-200 cursor-pointer hover:bg-stone-50 transition-all group overflow-hidden">
-                    <input type="file" className="hidden" accept="image/*" onChange={e => {
+                    <input type="file" className="hidden" accept="image/*" onChange={async e => {
                       const file = e.target.files?.[0]
                       if (!file) return
-                      const reader = new FileReader()
-                      reader.onloadend = () => setData(prev => ({ ...prev, bannerPhoto: reader.result as string }))
-                      reader.readAsDataURL(file)
+                      const compressed = await compressImage(file, 1400)
+                      setData(prev => ({ ...prev, bannerPhoto: compressed }))
                     }} />
                     {data.bannerPhoto ? (
                       <>
