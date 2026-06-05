@@ -80,7 +80,7 @@ This is a **Next.js 15 App Router** app (TypeScript, Tailwind CSS v3, React 19).
 
 All cart state lives in `contexts/CartContext.tsx` — a client-side context that persists to `localStorage` under keys `em_cart` and `em_shipping`. There is no server-side cart session.
 
-Media (photos/videos) is stored as **base64 data URLs** in cart state until checkout. At order creation (`POST /api/orders`), base64 strings are uploaded to Vercel Blob and stored as URLs in the DB.
+Media (photos/videos) is **uploaded to Vercel Blob immediately** when the user selects a file in the editor (`POST /api/upload`). Only the resulting URL is stored in cart state. At order creation (`POST /api/orders`), `uploadIfBase64` detects that the values are already URLs and skips re-uploading. This avoids the ~5MB `localStorage` quota limit that base64 storage hit in practice.
 
 ### Key files
 
@@ -89,7 +89,7 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 - `components/Providers.tsx` — Client wrapper for NextAuth + Cart providers
 - `components/Navigation.tsx` — Hides on `/memorial/*` routes. Shows Admin link only when `session.user.email === NEXT_PUBLIC_ADMIN_EMAIL`. Responsive: full link row on `md+`, hamburger dropdown on mobile.
 - `components/PricingSection.tsx` — Client component for "Add to Cart" buttons (only interactive part of home page)
-- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs
+- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs. File uploads go to Vercel Blob immediately via `POST /api/upload` (images are Canvas-compressed first); Save button is disabled while uploads are pending.
 - `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page); applies theme via inline styles
 - `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview`); applies theme via inline styles
 - `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Five themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
@@ -120,9 +120,10 @@ Media (photos/videos) is stored as **base64 data URLs** in cart state until chec
 | `GET/POST /api/auth/[...nextauth]` | — | NextAuth handler |
 | `GET/POST /api/memorials` | Required | List / create memorials |
 | `GET/PATCH /api/memorials/[id]` | Owner only | Read / update a memorial |
-| `POST /api/orders` | Required | Upload media → create Memorial + Order → for `card`: return Stripe Checkout URL; for `ramburs`: publish memorial immediately, set status `paid`, send emails, return `/success?ramburs=1` |
+| `POST /api/upload` | — | Accept a file via FormData, upload to Vercel Blob, return `{ url }`. Called by the editor on every file select. Images are Canvas-compressed before sending. |
+| `POST /api/orders` | Required | Create Memorial + Order (media already in Blob as URLs); for `card`: return Stripe Checkout URL; for `ramburs`: publish memorial immediately, set status `paid`, send emails, return `/success?ramburs=1` |
 | `POST /api/webhooks/stripe` | Stripe sig | Marks card orders paid, publishes memorials, sends confirmation emails (ramburs orders are never touched here — no `stripeSessionId`) |
-| `PATCH /api/admin/orders/[id]` | Admin only | Update order status; on → `shipped` sends customer notification + admin QR email; on → `delivered` sends customer thank-you + review link |
+| `PATCH /api/admin/orders/[id]` | Admin only | Update order status; on → `shipped` sends customer shipping notification; on → `delivered` sends customer thank-you + review link |
 | `DELETE /api/admin/orders/[id]` | Admin only | Delete order (cascades to Review) then deletes the associated Memorial |
 | `GET /api/reviews` | — | Public list of all reviews (author anonymised to first name + initial) |
 | `POST /api/reviews` | Required | Submit review — validates delivered order ownership, one per order |
@@ -238,7 +239,7 @@ This project was originally a single-file Vite + React app (`index.tsx` + `index
 
 ## Known gotchas
 
-**Prisma client must be generated before building.** A `postinstall` script runs `prisma generate` after every `npm install`, and the `build` script runs it again explicitly. Both are needed: Vercel calls `next build` directly (bypassing the `build` script), so only `postinstall` guarantees fresh types there. Locally, run `npm run db:generate` after every schema change — but stop the dev server first, since it holds the `.node` binary and the rename will fail with `EPERM` while it is running.
+**Prisma client must be generated before building.** A `postinstall` script runs `prisma generate` after every `npm install`, and both `build` and `vercel-build` scripts run it explicitly. The `vercel-build` script (`prisma generate && next build`) is what Vercel actually uses — it is checked before the framework default. Without it, Vercel can use a cached `node_modules` and skip `postinstall`, causing the deployed Prisma client to be out of sync with the schema. Locally, run `npm run db:generate` after every schema change — but stop the dev server first, since it holds the `.node` binary and the rename will fail with `EPERM` while it is running.
 
 **Do not import Prisma types directly from `@prisma/client` in page/component files.** The generated types are only reliably available after `prisma generate`. Use `Awaited<ReturnType<typeof db.model.findFirst>>` to infer types instead — see `app/dashboard/page.tsx` for the pattern.
 
