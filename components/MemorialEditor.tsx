@@ -10,7 +10,7 @@ interface MemorialEditorProps {
   onCancel: () => void
 }
 
-function compressImage(file: File, maxWidth: number, quality = 0.82): Promise<string> {
+function compressImageToBlob(file: File, maxWidth: number, quality = 0.82): Promise<Blob> {
   return new Promise(resolve => {
     const img = new Image()
     const url = URL.createObjectURL(file)
@@ -25,15 +25,30 @@ function compressImage(file: File, maxWidth: number, quality = 0.82): Promise<st
       canvas.width = width
       canvas.height = height
       canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
-      resolve(canvas.toDataURL('image/jpeg', quality))
+      canvas.toBlob(blob => resolve(blob!), 'image/jpeg', quality)
     }
     img.src = url
   })
 }
 
+async function uploadFile(file: File, maxWidth?: number): Promise<string> {
+  const formData = new FormData()
+  if (maxWidth) {
+    const compressed = await compressImageToBlob(file, maxWidth)
+    formData.append('file', compressed, file.name.replace(/\.[^.]+$/, '.jpg'))
+  } else {
+    formData.append('file', file)
+  }
+  const res = await fetch('/api/upload', { method: 'POST', body: formData })
+  if (!res.ok) throw new Error('Upload failed')
+  const { url } = await res.json()
+  return url as string
+}
+
 export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onSave, onCancel }) => {
   const [data, setData] = useState<MemorialContent>(initialData)
   const [activeTab, setActiveTab] = useState<'details' | 'tema' | 'media' | 'videos'>('details')
+  const [uploading, setUploading] = useState(0)
 
   const maxStorage = data.plan === 'premium' ? 300 : 100
   const currentSize = (data.media.length * 2) + (data.videos.length * 15)
@@ -47,13 +62,18 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
       return
     }
     Array.from(files).forEach(async file => {
-      if (type === 'image') {
-        const compressed = await compressImage(file, 1200)
-        setData(prev => ({ ...prev, media: [...prev.media, compressed] }))
-      } else {
-        const reader = new FileReader()
-        reader.onloadend = () => setData(prev => ({ ...prev, videos: [...prev.videos, reader.result as string] }))
-        reader.readAsDataURL(file)
+      setUploading(n => n + 1)
+      try {
+        const url = await uploadFile(file, type === 'image' ? 1200 : undefined)
+        if (type === 'image') {
+          setData(prev => ({ ...prev, media: [...prev.media, url] }))
+        } else {
+          setData(prev => ({ ...prev, videos: [...prev.videos, url] }))
+        }
+      } catch {
+        alert('Încărcarea fișierului a eșuat. Încearcă din nou.')
+      } finally {
+        setUploading(n => n - 1)
       }
     })
   }
@@ -120,8 +140,12 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
                     <input type="file" className="hidden" accept="image/*" onChange={async e => {
                       const file = e.target.files?.[0]
                       if (!file) return
-                      const compressed = await compressImage(file, 800)
-                      setData(prev => ({ ...prev, profilePhoto: compressed }))
+                      setUploading(n => n + 1)
+                      try {
+                        const url = await uploadFile(file, 800)
+                        setData(prev => ({ ...prev, profilePhoto: url }))
+                      } catch { alert('Încărcarea a eșuat.') }
+                      finally { setUploading(n => n - 1) }
                     }} />
                     {data.profilePhoto ? (
                       <>
@@ -143,8 +167,12 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
                     <input type="file" className="hidden" accept="image/*" onChange={async e => {
                       const file = e.target.files?.[0]
                       if (!file) return
-                      const compressed = await compressImage(file, 1400)
-                      setData(prev => ({ ...prev, bannerPhoto: compressed }))
+                      setUploading(n => n + 1)
+                      try {
+                        const url = await uploadFile(file, 1400)
+                        setData(prev => ({ ...prev, bannerPhoto: url }))
+                      } catch { alert('Încărcarea a eșuat.') }
+                      finally { setUploading(n => n - 1) }
                     }} />
                     {data.bannerPhoto ? (
                       <>
@@ -314,7 +342,13 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
 
       <div className="bg-stone-50 p-6 flex justify-end gap-4 border-t border-stone-100">
         <button onClick={onCancel} className="px-6 py-3 text-stone-500 font-bold hover:text-stone-800 transition-colors">Anulare</button>
-        <button onClick={() => onSave(data)} className="px-10 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md active:scale-95">Salvează Memorial</button>
+        <button
+          onClick={() => onSave(data)}
+          disabled={uploading > 0}
+          className="px-10 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md active:scale-95 disabled:opacity-60 disabled:cursor-wait"
+        >
+          {uploading > 0 ? `Se încarcă (${uploading})…` : 'Salvează Memorial'}
+        </button>
       </div>
     </div>
   )
