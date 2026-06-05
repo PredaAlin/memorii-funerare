@@ -146,7 +146,7 @@ Four transactional email triggers via `lib/email.ts`:
 
 Admin always receives the QR code (`qr-<name>.png`, 400×400) at order creation — not at shipment. This allows engraving to start immediately.
 
-**Sender:** `noreply@eternalmemories.ro` — requires domain verified in Resend. The old `onboarding@resend.dev` sender only delivered to the Resend account owner's address.
+**Sender:** `noreply@eternalmemories.ro` — domain verified in Resend ✓, all transactional emails confirmed working in production. The old `onboarding@resend.dev` sender only delivered to the Resend account owner's address.
 
 **Critical pattern:** emails in the webhook are wrapped in `Promise.allSettled` so Resend failures never cause a webhook 500 (which would trigger Stripe retries). Ramburs confirmation emails use the same pattern. All emails in the admin PATCH route are fire-and-forget (`.catch` only logs).
 
