@@ -68,10 +68,10 @@ export function MemorialView({ memorial }: MemorialViewProps) {
           />
         </div>
 
-        <h1 className="text-3xl font-bold serif text-white drop-shadow-lg uppercase tracking-widest mb-1">
+        <h1 className="text-3xl font-bold serif uppercase tracking-widest mb-1" style={{ color: c.text }}>
           {memorial.deceasedName}
         </h1>
-        <p className="text-sm font-bold uppercase tracking-widest drop-shadow mb-6" style={{ color: '#d6d3d1' }}>
+        <p className="text-sm font-bold uppercase tracking-widest mb-6" style={{ color: c.textMuted }}>
           {formatDate(memorial.birthDate)} &bull; {formatDate(memorial.deathDate)}
         </p>
 
