@@ -99,6 +99,13 @@ export default async function DashboardPage() {
                         Vezi Pagina Publică
                       </Link>
                     )}
+                    <Link
+                      href={`/edit/${order.memorial.id}`}
+                      className="px-4 py-2 bg-amber-50 text-amber-700 rounded-full text-sm font-medium hover:bg-amber-100 transition-colors flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                      Editează
+                    </Link>
                     <p className="text-xs text-stone-400 self-center">
                       Comandat {new Date(order.createdAt).toLocaleDateString('ro-RO', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>

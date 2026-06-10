@@ -41,6 +41,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       mediaUrls: body.mediaUrls ?? memorial.mediaUrls,
       videoUrls: body.videoUrls ?? memorial.videoUrls,
       theme: body.theme ?? memorial.theme,
+      profilePhotoUrl: body.profilePhotoUrl !== undefined ? body.profilePhotoUrl : memorial.profilePhotoUrl,
+      bannerPhotoUrl: body.bannerPhotoUrl !== undefined ? body.bannerPhotoUrl : memorial.bannerPhotoUrl,
     },
   })
   return NextResponse.json(updated)

@@ -3,11 +3,13 @@
 import React, { useState } from 'react'
 import { MemorialContent } from '@/types'
 import { THEMES, getTheme } from '@/lib/themes'
+import { MemorialPreview } from '@/components/MemorialPreview'
 
 interface MemorialEditorProps {
   initialData: MemorialContent
   onSave: (data: MemorialContent) => void
   onCancel: () => void
+  saveLabel?: string
 }
 
 function compressImageToBlob(file: File, maxWidth: number, quality = 0.82): Promise<Blob> {
@@ -45,10 +47,12 @@ async function uploadFile(file: File, maxWidth?: number): Promise<string> {
   return url as string
 }
 
-export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onSave, onCancel }) => {
+export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onSave, onCancel, saveLabel }) => {
   const [data, setData] = useState<MemorialContent>(initialData)
   const [activeTab, setActiveTab] = useState<'details' | 'tema' | 'media' | 'videos'>('details')
   const [uploading, setUploading] = useState(0)
+  const [showPreview, setShowPreview] = useState(false)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
 
   const maxStorage = data.plan === 'premium' ? 300 : 100
   const currentSize = (data.media.length * 2) + (data.videos.length * 15)
@@ -303,9 +307,30 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
                 <span className="text-[10px] font-bold text-stone-400">ADAUGĂ FOTO</span>
               </label>
               {data.media.map((url, i) => (
-                <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group border border-stone-100 shadow-sm">
+                <div
+                  key={i}
+                  draggable
+                  onDragStart={() => setDragIndex(i)}
+                  onDragEnd={() => setDragIndex(null)}
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={() => {
+                    if (dragIndex === null || dragIndex === i) return
+                    const reordered = [...data.media]
+                    reordered.splice(i, 0, reordered.splice(dragIndex, 1)[0])
+                    setData(prev => ({ ...prev, media: reordered }))
+                    setDragIndex(null)
+                  }}
+                  className={`relative aspect-square rounded-2xl overflow-hidden group border border-stone-100 shadow-sm cursor-grab active:cursor-grabbing transition-opacity ${dragIndex === i ? 'opacity-40' : ''}`}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} className="w-full h-full object-cover" alt="" />
+                  <img src={url} className="w-full h-full object-cover pointer-events-none" alt="" />
+                  {/* Drag handle */}
+                  <div className="absolute top-2 left-2 p-1 bg-white/80 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg className="w-3 h-3 text-stone-500" viewBox="0 0 16 16" fill="currentColor">
+                      <circle cx="5" cy="4" r="1.2"/><circle cx="5" cy="8" r="1.2"/><circle cx="5" cy="12" r="1.2"/>
+                      <circle cx="11" cy="4" r="1.2"/><circle cx="11" cy="8" r="1.2"/><circle cx="11" cy="12" r="1.2"/>
+                    </svg>
+                  </div>
                   <button onClick={() => removeMedia(i, 'image')} className="absolute top-2 right-2 p-1.5 bg-white/90 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
                   </button>
@@ -343,13 +368,38 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
       <div className="bg-stone-50 p-6 flex justify-end gap-4 border-t border-stone-100">
         <button onClick={onCancel} className="px-6 py-3 text-stone-500 font-bold hover:text-stone-800 transition-colors">Anulare</button>
         <button
+          onClick={() => setShowPreview(true)}
+          className="px-6 py-3 border border-stone-300 text-stone-700 rounded-full font-bold hover:bg-stone-100 transition-all flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          Previzualizare
+        </button>
+        <button
           onClick={() => onSave(data)}
           disabled={uploading > 0}
           className="px-10 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md active:scale-95 disabled:opacity-60 disabled:cursor-wait"
         >
-          {uploading > 0 ? `Se încarcă (${uploading})…` : 'Salvează Memorial'}
+          {uploading > 0 ? `Se încarcă (${uploading})…` : (saveLabel ?? 'Salvează Memorial')}
         </button>
       </div>
+
+      {/* Live preview modal */}
+      {showPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setShowPreview(false)}
+        >
+          <div onClick={e => e.stopPropagation()} className="relative flex flex-col items-center">
+            <button
+              onClick={() => setShowPreview(false)}
+              className="mb-4 px-5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-bold transition-colors"
+            >
+              ✕ Închide previzualizarea
+            </button>
+            <MemorialPreview data={data} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
