@@ -1,8 +1,10 @@
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { SavedToast } from './SavedToast'
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
@@ -44,6 +46,10 @@ export default async function DashboardPage() {
         <h1 className="text-4xl font-bold serif text-stone-800 mb-2">Memorialele mele</h1>
         <p className="text-stone-500">Gestionează paginile tale memoriale și urmărește comenzile.</p>
       </div>
+
+      <Suspense>
+        <SavedToast />
+      </Suspense>
 
       {orders.length === 0 ? (
         <div className="text-center py-24 border-2 border-dashed border-stone-200 rounded-3xl bg-white">
