@@ -70,6 +70,7 @@ This is a **Next.js 15 App Router** app (TypeScript, Tailwind CSS v3, React 19).
 | `/checkout` | Client | Payment method selector (card → Stripe, ramburs → direct); creates order |
 | `/success` | Client | Clears cart; shows ramburs note when `?ramburs=1` |
 | `/memorial/[id]` | **Dynamic SSR** | Key feature — server-rendered for QR scan visitors, no JS wait |
+| `/edit/[id]` | Dynamic SSR | Auth-gated; server fetches memorial, passes to `EditForm` client component for edit-after-purchase |
 | `/dashboard` | Dynamic SSR | Server component, fetches current user's orders from DB |
 | `/admin` | Dynamic SSR | Admin-only, fetches all orders from DB |
 | `/auth/signin` | Client | Combined sign-in/sign-up form |
@@ -89,10 +90,15 @@ Media (photos/videos) is **uploaded to Vercel Blob immediately** when the user s
 - `components/Providers.tsx` — Client wrapper for NextAuth + Cart providers
 - `components/Navigation.tsx` — Hides on `/memorial/*` routes. Shows Admin link only when `session.user.email === NEXT_PUBLIC_ADMIN_EMAIL`. Responsive: full link row on `md+`, hamburger dropdown on mobile.
 - `components/PricingSection.tsx` — Client component for "Add to Cart" buttons (only interactive part of home page)
-- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs. File uploads go to Vercel Blob immediately via `POST /api/upload` (images are Canvas-compressed first); Save button is disabled while uploads are pending.
-- `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page); applies theme via inline styles
-- `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview`); applies theme via inline styles
+- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs. File uploads go to Vercel Blob immediately via `POST /api/upload` (images are Canvas-compressed first); Save button is disabled while uploads are pending. Media tab supports **drag-to-reorder** (HTML5 drag-and-drop, six-dot handle, no library). Footer has a **"Previzualizare" button** that opens the `MemorialPreview` phone-frame in a full-screen modal. Accepts optional `saveLabel` prop to customise the save button text.
+- `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page and the editor's Previzualizare modal). **Client component** with sticky tabbed navigation: Info, Galerie (only when mediaUrls present), Videoclipuri (only when videoUrls present). Applies theme via inline styles using `c.text` / `c.textMuted` for name/dates — never hardcoded white.
+- `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview` and the editor's Previzualizare modal); applies theme via inline styles
+- `components/ImageGalleryCarousel.tsx` — Client component: responsive grid of photos that opens a full-screen lightbox on click; keyboard (←/→/Esc) and touch-swipe navigation; used inside `MemorialView`.
+- `components/SiteFooter.tsx` — Client component wrapping the site footer; returns `null` on `/memorial/*` routes so the footer is hidden for QR-scan visitors. Same `usePathname()` pattern as `Navigation`.
 - `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Five themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
+- `app/edit/[id]/page.tsx` — Server component: auth check, ownership check, DB fetch, passes data to `EditForm`
+- `app/edit/[id]/EditForm.tsx` — Client component: maps DB memorial → `MemorialContent`, renders `MemorialEditor` with `saveLabel="Actualizează Memorialul"`, calls `PATCH /api/memorials/[id]` on save, then redirects to `/dashboard?saved=1`
+- `app/dashboard/SavedToast.tsx` — Client component: reads `?saved=1` from URL via `useSearchParams`, shows green success toast, then calls `router.replace('/dashboard')` to clean the URL. Must be wrapped in `<Suspense>` in the dashboard page.
 - `app/admin/page.tsx` — Thin server shell: auth check, DB fetch, date serialization, renders `AdminDashboard`
 - `app/admin/AdminDashboard.tsx` — Client component: period filter (Azi/Această lună/Acest an/Toate), orders chart, 4 stat cards (revenue, total, de expediat, livrate), status filter pills, filtered orders list. Stats and chart update live when status changes or orders are deleted. Ramburs orders show an amber "Ramburs" badge. Each order card has an inline-confirm delete button.
 - `app/admin/OrdersChart.tsx` — Bar chart (Recharts) showing orders grouped by day (Săptămână/Lună) or by month (An). Data is aggregated client-side from the orders already in state — no extra DB query.
@@ -111,6 +117,7 @@ Media (photos/videos) is **uploaded to Vercel Blob immediately** when the user s
 - `app/icon.svg` — Favicon: diamond/square logo matching the navbar, dark background with amber inner square
 - `public/gravestone.jpg` — Local cemetery photo (1400×930, 199KB JPEG); used on homepage via Next.js `<Image>`
 - `types/next-auth.d.ts` — Adds `user.id` to the NextAuth Session type
+- `app/dashboard/page.tsx` — Shows user's orders; each card has "Editează" (amber, links to `/edit/[memorialId]`) and "Vezi Pagina Publică" buttons; includes `<Suspense><SavedToast /></Suspense>` for post-edit confirmation
 
 ### API routes
 
@@ -119,7 +126,7 @@ Media (photos/videos) is **uploaded to Vercel Blob immediately** when the user s
 | `POST /api/auth/register` | — | Create account (email + bcrypt password) |
 | `GET/POST /api/auth/[...nextauth]` | — | NextAuth handler |
 | `GET/POST /api/memorials` | Required | List / create memorials |
-| `GET/PATCH /api/memorials/[id]` | Owner only | Read / update a memorial |
+| `GET/PATCH /api/memorials/[id]` | Owner only | Read / update a memorial. PATCH accepts: `deceasedName`, `birthDate`, `deathDate`, `bio`, `quote`, `mediaUrls`, `videoUrls`, `theme`, `profilePhotoUrl`, `bannerPhotoUrl` |
 | `POST /api/upload` | — | Accept a file via FormData, upload to Vercel Blob, return `{ url }`. Called by the editor on every file select. Images are Canvas-compressed before sending. |
 | `POST /api/orders` | Required | Create Memorial + Order (media already in Blob as URLs); for `card`: return Stripe Checkout URL; for `ramburs`: publish memorial immediately, set status `paid`, send emails, return `/success?ramburs=1` |
 | `POST /api/webhooks/stripe` | Stripe sig | Marks card orders paid, publishes memorials, sends confirmation emails (ramburs orders are never touched here — no `stripeSessionId`) |
