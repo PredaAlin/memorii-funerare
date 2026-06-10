@@ -24,7 +24,7 @@ function EditorContent() {
         initialData={item.memorialData}
         onSave={(data) => {
           updateCartItem(id!, data)
-          router.push(`/preview?id=${id}`)
+          router.push('/cart?saved=1')
         }}
         onCancel={() => router.push('/cart')}
       />

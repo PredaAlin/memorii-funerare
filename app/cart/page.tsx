@@ -1,17 +1,29 @@
 'use client'
 
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 
-export default function CartPage() {
+function CartContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const [savedToast, setSavedToast] = useState(false)
   const {
     cart, shippingInfo, setShippingInfo,
     removeFromCart, total,
     showValidationErrors, setShowValidationErrors,
     canCheckout, isShippingValid,
   } = useCart()
+
+  useEffect(() => {
+    if (searchParams.get('saved') === '1') {
+      setSavedToast(true)
+      router.replace('/cart', { scroll: false })
+      const t = setTimeout(() => setSavedToast(false), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [searchParams, router])
 
   const handleCheckoutAttempt = () => {
     if (canCheckout()) {
@@ -28,6 +40,15 @@ export default function CartPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
       <h2 className="text-4xl font-bold mb-8 serif text-stone-800">Plăcile tale Memoriale</h2>
+
+      {savedToast && (
+        <div className="mb-6 px-5 py-3 bg-green-50 border border-green-200 text-green-700 rounded-2xl text-sm font-medium flex items-center gap-2">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Memorialul a fost salvat cu succes.
+        </div>
+      )}
 
       {cart.length === 0 ? (
         <div className="text-center py-20 border-2 border-dashed border-stone-200 rounded-3xl bg-white">
@@ -152,5 +173,13 @@ export default function CartPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function CartPage() {
+  return (
+    <Suspense>
+      <CartContent />
+    </Suspense>
   )
 }
