@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { MemorialContent } from '@/types'
 import { THEMES, getTheme } from '@/lib/themes'
-import { MemorialView } from '@/components/MemorialView'
+import { MemorialPreview } from '@/components/MemorialPreview'
 
 interface MemorialEditorProps {
   initialData: MemorialContent
@@ -385,29 +385,19 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
 
       {/* Live preview modal */}
       {showPreview && (
-        <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: 'rgba(0,0,0,0.6)' }}>
-          <div className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-stone-200 px-6 py-3 flex justify-center">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setShowPreview(false)}
+        >
+          <div onClick={e => e.stopPropagation()} className="relative flex flex-col items-center">
             <button
               onClick={() => setShowPreview(false)}
-              className="px-5 py-2 bg-stone-900 text-white rounded-full text-sm font-bold hover:bg-stone-800 transition-colors flex items-center gap-2"
+              className="mb-4 px-5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-bold transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-              Înapoi la editor
+              ✕ Închide previzualizarea
             </button>
+            <MemorialPreview data={data} />
           </div>
-          <MemorialView memorial={{
-            id: data.id,
-            deceasedName: data.deceasedName,
-            birthDate: data.birthDate || null,
-            deathDate: data.deathDate || null,
-            bio: data.bio || null,
-            quote: data.quote || null,
-            mediaUrls: data.media,
-            videoUrls: data.videos,
-            profilePhotoUrl: data.profilePhoto || null,
-            bannerPhotoUrl: data.bannerPhoto || null,
-            theme: data.theme,
-          }} />
         </div>
       )}
     </div>
