@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import { getTheme } from '@/lib/themes'
 import { ImageGalleryCarousel } from '@/components/ImageGalleryCarousel'
 
@@ -30,6 +33,14 @@ export function MemorialView({ memorial }: MemorialViewProps) {
   const theme = getTheme(memorial.theme)
   const c = theme.colors
 
+  const tabs = [
+    { id: 'info' as const, label: 'Info' },
+    ...(memorial.mediaUrls.length > 0 ? [{ id: 'galerie' as const, label: 'Galerie' }] : []),
+    ...(memorial.videoUrls.length > 0 ? [{ id: 'videoclipuri' as const, label: 'Videoclipuri' }] : []),
+  ]
+
+  const [activeTab, setActiveTab] = useState<'info' | 'galerie' | 'videoclipuri'>(tabs[0].id)
+
   return (
     <div className="min-h-screen" style={{ background: c.bg }}>
       {/* Cover */}
@@ -43,7 +54,7 @@ export function MemorialView({ memorial }: MemorialViewProps) {
         <div className="absolute inset-0" style={{ background: c.coverOverlay }} />
       </div>
 
-      <div className="max-w-2xl mx-auto px-6 -mt-16 relative z-10 pb-16">
+      <div className="max-w-2xl mx-auto px-6 -mt-16 relative z-10">
         {/* Profile */}
         <div
           className="w-24 h-24 rounded-full p-1 shadow-xl border-2 overflow-hidden mb-4"
@@ -60,55 +71,61 @@ export function MemorialView({ memorial }: MemorialViewProps) {
         <h1 className="text-3xl font-bold serif text-white drop-shadow-lg uppercase tracking-widest mb-1">
           {memorial.deceasedName}
         </h1>
-        <p className="text-sm font-bold uppercase tracking-widest drop-shadow mb-8" style={{ color: '#d6d3d1' }}>
+        <p className="text-sm font-bold uppercase tracking-widest drop-shadow mb-6" style={{ color: '#d6d3d1' }}>
           {formatDate(memorial.birthDate)} &bull; {formatDate(memorial.deathDate)}
         </p>
 
-        {/* Quote */}
-        {memorial.quote && (
-          <div
-            className="rounded-2xl px-6 py-4 italic text-sm leading-relaxed mb-8"
-            style={{ background: c.surfaceAlt, border: `1px solid ${c.borderAlt}`, color: c.text }}
-          >
-            &ldquo;{memorial.quote}&rdquo;
-          </div>
-        )}
-
-        {/* Biography */}
-        {memorial.bio && (
-          <div className="mb-10">
-            <h2
-              className="text-xs font-bold uppercase tracking-widest mb-3 pb-2"
-              style={{ color: c.sectionHeading, borderBottom: `1px solid ${c.border}` }}
+        {/* Tab bar */}
+        <div
+          className="flex gap-8 sticky top-0 z-20 -mx-6 px-6 py-3"
+          style={{ background: c.bg, borderBottom: `1px solid ${c.border}` }}
+        >
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="pb-1 text-xs font-bold uppercase tracking-widest transition-all"
+              style={activeTab === tab.id
+                ? { color: c.tabActive, borderBottom: `2px solid ${c.tabActive}` }
+                : { color: c.tabInactive }
+              }
             >
-              Biografie
-            </h2>
-            <p className="leading-relaxed whitespace-pre-wrap" style={{ color: c.text }}>{memorial.bio}</p>
-          </div>
-        )}
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-        {/* Gallery */}
-        {memorial.mediaUrls.length > 0 && (
-          <div className="mb-10">
-            <h2
-              className="text-xs font-bold uppercase tracking-widest mb-3 pb-2"
-              style={{ color: c.sectionHeading, borderBottom: `1px solid ${c.border}` }}
-            >
-              Galerie
-            </h2>
+        {/* Tab content */}
+        <div className="py-8 pb-16">
+          {activeTab === 'info' && (
+            <div>
+              {memorial.quote && (
+                <div
+                  className="rounded-2xl px-6 py-4 italic text-sm leading-relaxed mb-8"
+                  style={{ background: c.surfaceAlt, border: `1px solid ${c.borderAlt}`, color: c.text }}
+                >
+                  &ldquo;{memorial.quote}&rdquo;
+                </div>
+              )}
+              {memorial.bio && (
+                <div>
+                  <h2
+                    className="text-xs font-bold uppercase tracking-widest mb-3 pb-2"
+                    style={{ color: c.sectionHeading, borderBottom: `1px solid ${c.border}` }}
+                  >
+                    Biografie
+                  </h2>
+                  <p className="leading-relaxed whitespace-pre-wrap" style={{ color: c.text }}>{memorial.bio}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'galerie' && (
             <ImageGalleryCarousel urls={memorial.mediaUrls} colors={c} />
-          </div>
-        )}
+          )}
 
-        {/* Videos */}
-        {memorial.videoUrls.length > 0 && (
-          <div>
-            <h2
-              className="text-xs font-bold uppercase tracking-widest mb-3 pb-2"
-              style={{ color: c.sectionHeading, borderBottom: `1px solid ${c.border}` }}
-            >
-              Videoclipuri
-            </h2>
+          {activeTab === 'videoclipuri' && (
             <div className="space-y-4">
               {memorial.videoUrls.map((url, i) => (
                 <div key={i} className="rounded-xl overflow-hidden shadow-lg" style={{ background: '#111' }}>
@@ -116,11 +133,11 @@ export function MemorialView({ memorial }: MemorialViewProps) {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Footer watermark */}
-        <div className="mt-16 pt-8 flex items-center justify-center gap-2 opacity-40" style={{ borderTop: `1px solid ${c.border}` }}>
+        <div className="pt-8 pb-8 flex items-center justify-center gap-2 opacity-40" style={{ borderTop: `1px solid ${c.border}` }}>
           <div className="w-4 h-4 rounded-sm rotate-45 flex items-center justify-center" style={{ background: c.text }}>
             <div className="w-2 h-2 border border-white rotate-[-45deg]"></div>
           </div>
