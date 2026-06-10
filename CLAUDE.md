@@ -64,9 +64,9 @@ This is a **Next.js 15 App Router** app (TypeScript, Tailwind CSS v3, React 19).
 | Route | Type | Notes |
 |---|---|---|
 | `/` | Static SSR | Server component, pricing section is a client component |
-| `/cart` | Client | All cart state lives in CartContext |
-| `/editor?id=xxx` | Client | Reads cart item by ID from CartContext |
-| `/preview?id=xxx` | Client | Phone-mockup preview |
+| `/cart` | Client | All cart state lives in CartContext. Previzualizare button opens inline `MemorialPreview` modal. "Salvează Memorial" in editor redirects here with `?saved=1` toast. |
+| `/editor?id=xxx` | Client | Reads cart item by ID from CartContext. On save → redirects to `/cart?saved=1` |
+| `/preview?id=xxx` | ~~deleted~~ | Was the phone-mockup preview page — removed; replaced by inline modals in the cart and editor |
 | `/checkout` | Client | Payment method selector (card → Stripe, ramburs → direct); creates order |
 | `/success` | Client | Clears cart; shows ramburs note when `?ramburs=1` |
 | `/memorial/[id]` | **Dynamic SSR** | Key feature — server-rendered for QR scan visitors, no JS wait |
@@ -92,7 +92,7 @@ Media (photos/videos) is **uploaded to Vercel Blob immediately** when the user s
 - `components/PricingSection.tsx` — Client component for "Add to Cart" buttons (only interactive part of home page)
 - `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs. File uploads go to Vercel Blob immediately via `POST /api/upload` (images are Canvas-compressed first); Save button is disabled while uploads are pending. Media tab supports **drag-to-reorder** (HTML5 drag-and-drop, six-dot handle, no library). Footer has a **"Previzualizare" button** that opens the `MemorialPreview` phone-frame in a full-screen modal. Accepts optional `saveLabel` prop to customise the save button text.
 - `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page and the editor's Previzualizare modal). **Client component** with sticky tabbed navigation: Info, Galerie (only when mediaUrls present), Videoclipuri (only when videoUrls present). Applies theme via inline styles using `c.text` / `c.textMuted` for name/dates — never hardcoded white.
-- `components/MemorialPreview.tsx` — Phone-frame preview wrapper (used in `/preview` and the editor's Previzualizare modal); applies theme via inline styles
+- `components/MemorialPreview.tsx` — Phone-frame preview wrapper used in inline modals (editor's Previzualizare button and cart's Previzualizare button); applies theme via inline styles
 - `components/ImageGalleryCarousel.tsx` — Client component: responsive grid of photos that opens a full-screen lightbox on click; keyboard (←/→/Esc) and touch-swipe navigation; used inside `MemorialView`.
 - `components/SiteFooter.tsx` — Client component wrapping the site footer; returns `null` on `/memorial/*` routes so the footer is hidden for QR-scan visitors. Same `usePathname()` pattern as `Navigation`.
 - `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Five themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
@@ -112,7 +112,7 @@ Media (photos/videos) is **uploaded to Vercel Blob immediately** when the user s
 - `app/reviews/write/page.tsx` — Server shell: auth check, order eligibility check; if review already exists passes it as `existing` prop to `ReviewForm` (edit mode), otherwise create mode
 - `app/reviews/write/ReviewForm.tsx` — Client component: interactive star picker, textarea, POST to `/api/reviews` (create) or PATCH to `/api/reviews/[id]` (edit); detects mode via `existing` prop
 - `app/sitemap.ts` — Auto-generates `/sitemap.xml` with homepage and reviews page
-- `app/robots.ts` — Auto-generates `/robots.txt`; disallows `/admin`, `/dashboard`, `/api/`, `/checkout`, `/success`, `/editor`, `/preview`
+- `app/robots.ts` — Auto-generates `/robots.txt`; disallows `/admin`, `/dashboard`, `/api/`, `/checkout`, `/success`, `/editor`, `/preview` (note: `/preview` route is deleted but the disallow entry is harmless)
 - `app/opengraph-image.tsx` — Edge runtime dynamic OG image (1200×630, dark stone background with logo and tagline)
 - `app/icon.svg` — Favicon: diamond/square logo matching the navbar, dark background with amber inner square
 - `public/gravestone.jpg` — Local cemetery photo (1400×930, 199KB JPEG); used on homepage via Next.js `<Image>`
