@@ -35,7 +35,6 @@ function compressImageToBlob(file: File, maxWidth: number, quality = 0.82): Prom
 }
 
 async function uploadFile(file: File, maxWidth?: number): Promise<string> {
-  // Videos: upload directly from browser to Vercel Blob (bypasses 4.5MB function limit)
   if (file.type.startsWith('video/')) {
     const ext = file.name.split('.').pop() ?? 'mp4'
     const filename = `videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
@@ -43,18 +42,11 @@ async function uploadFile(file: File, maxWidth?: number): Promise<string> {
     return blob.url
   }
 
-  // Images: compress first, then upload via server
-  const formData = new FormData()
-  if (maxWidth) {
-    const compressed = await compressImageToBlob(file, maxWidth)
-    formData.append('file', compressed, file.name.replace(/\.[^.]+$/, '.jpg'))
-  } else {
-    formData.append('file', file)
-  }
-  const res = await fetch('/api/upload', { method: 'POST', body: formData })
-  if (!res.ok) throw new Error('Upload failed')
-  const { url } = await res.json()
-  return url as string
+  // Compress in the browser first, then upload directly to Vercel Blob
+  const toUpload = maxWidth ? await compressImageToBlob(file, maxWidth) : file
+  const filename = `media/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
+  const blob = await upload(filename, toUpload, { access: 'public', handleUploadUrl: '/api/upload' })
+  return blob.url
 }
 
 export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onSave, onCancel, saveLabel }) => {
