@@ -13,10 +13,15 @@ function CartContent() {
   const [previewItemId, setPreviewItemId] = useState<string | null>(null)
   const {
     cart, shippingInfo, setShippingInfo,
-    removeFromCart, total,
+    addToCart, removeFromCart, total,
     showValidationErrors, setShowValidationErrors,
     canCheckout, isShippingValid,
   } = useCart()
+
+  const handleAddPlan = (plan: 'basic' | 'premium') => {
+    const id = addToCart(plan)
+    router.push(`/editor?id=${id}`)
+  }
 
   useEffect(() => {
     if (searchParams.get('saved') === '1') {
@@ -107,6 +112,25 @@ function CartContent() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Add another memorial */}
+          <div className="border-2 border-dashed border-stone-200 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-stone-500 font-medium text-sm">Adaugă un alt memorial</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleAddPlan('basic')}
+                className="px-5 py-2.5 rounded-full border border-stone-300 text-stone-700 text-sm font-bold hover:bg-stone-50 transition-colors"
+              >
+                De Bază — 149.99 lei
+              </button>
+              <button
+                onClick={() => handleAddPlan('premium')}
+                className="px-5 py-2.5 rounded-full bg-amber-600 text-white text-sm font-bold hover:bg-amber-500 transition-colors"
+              >
+                Premium — 199.99 lei
+              </button>
+            </div>
           </div>
 
           {/* Shipping form */}

@@ -16,7 +16,7 @@ interface CartContextType {
   cart: CartItem[]
   shippingInfo: ShippingInfo
   showValidationErrors: boolean
-  addToCart: (plan: MemorialPlan) => void
+  addToCart: (plan: MemorialPlan) => string
   updateCartItem: (id: string, data: MemorialContent) => void
   removeFromCart: (id: string) => void
   setShippingInfo: (info: ShippingInfo) => void
@@ -53,7 +53,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (hydrated) localStorage.setItem('em_shipping', JSON.stringify(shippingInfo))
   }, [shippingInfo, hydrated])
 
-  const addToCart = (plan: MemorialPlan) => {
+  const addToCart = (plan: MemorialPlan): string => {
     const newItem: CartItem = {
       id: Math.random().toString(36).substr(2, 9),
       quantity: 1,
@@ -65,6 +65,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       },
     }
     setCart(prev => [...prev, newItem])
+    return newItem.id
   }
 
   const updateCartItem = (id: string, data: MemorialContent) => {
