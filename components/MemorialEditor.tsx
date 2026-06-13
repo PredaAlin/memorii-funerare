@@ -89,6 +89,10 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
     }
     Array.from(files).forEach(async file => {
       const sizeMB = file.size / (1024 * 1024)
+      if (currentSize + sizeMB > maxStorage) {
+        showToast(`Fișierul depășește limita de stocare (${maxStorage}MB).`)
+        return
+      }
       setUploading(n => n + 1)
       try {
         const url = await uploadFile(file, type === 'image' ? 1200 : undefined)
@@ -413,7 +417,13 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
           Previzualizare
         </button>
         <button
-          onClick={() => onSave(data)}
+          onClick={() => {
+            if (currentSize > maxStorage) {
+              showToast(`Limita de stocare de ${maxStorage}MB a fost depășită. Șterge fișiere înainte de a salva.`)
+              return
+            }
+            onSave(data)
+          }}
           disabled={uploading > 0}
           className="px-10 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-all shadow-md active:scale-95 disabled:opacity-60 disabled:cursor-wait"
         >
