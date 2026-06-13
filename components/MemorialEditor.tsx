@@ -65,6 +65,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'info' } | null>(null)
   const toastTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [fileSizes, setFileSizes] = useState<Record<string, number>>({})
 
   const showToast = (message: string, type: 'error' | 'info' = 'error') => {
     if (toastTimer.current) clearTimeout(toastTimer.current)
@@ -73,7 +74,10 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
   }
 
   const maxStorage = data.plan === 'premium' ? 300 : 100
-  const currentSize = (data.media.length * 2) + (data.videos.length * 15)
+  const currentSize = [
+    ...data.media.map(url => fileSizes[url] ?? 2),
+    ...data.videos.map(url => fileSizes[url] ?? 15),
+  ].reduce((a, b) => a + b, 0)
   const progress = (currentSize / maxStorage) * 100
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
@@ -84,9 +88,11 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
       return
     }
     Array.from(files).forEach(async file => {
+      const sizeMB = file.size / (1024 * 1024)
       setUploading(n => n + 1)
       try {
         const url = await uploadFile(file, type === 'image' ? 1200 : undefined)
+        setFileSizes(prev => ({ ...prev, [url]: sizeMB }))
         if (type === 'image') {
           setData(prev => ({ ...prev, media: [...prev.media, url] }))
         } else {
@@ -101,11 +107,15 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
   }
 
   const removeMedia = (index: number, type: 'image' | 'video') => {
-    setData(prev => ({
-      ...prev,
-      media: type === 'image' ? prev.media.filter((_, i) => i !== index) : prev.media,
-      videos: type === 'video' ? prev.videos.filter((_, i) => i !== index) : prev.videos,
-    }))
+    setData(prev => {
+      const removedUrl = type === 'image' ? prev.media[index] : prev.videos[index]
+      setFileSizes(sizes => { const next = { ...sizes }; delete next[removedUrl]; return next })
+      return {
+        ...prev,
+        media: type === 'image' ? prev.media.filter((_, i) => i !== index) : prev.media,
+        videos: type === 'video' ? prev.videos.filter((_, i) => i !== index) : prev.videos,
+      }
+    })
   }
 
   return (
@@ -132,7 +142,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
               <div className="w-24 h-1.5 bg-stone-700 rounded-full overflow-hidden">
                 <div className={`h-full transition-all ${progress > 90 ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: `${Math.min(100, progress)}%` }}></div>
               </div>
-              <span className="text-[10px] text-stone-400 font-mono">{currentSize}/{maxStorage}MB</span>
+              <span className="text-[10px] text-stone-400 font-mono">{currentSize.toFixed(1)}/{maxStorage}MB</span>
             </div>
           </div>
         </div>
