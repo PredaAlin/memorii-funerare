@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { upload } from '@vercel/blob/client'
 import { MemorialContent } from '@/types'
 import { THEMES, getTheme } from '@/lib/themes'
 import { MemorialPreview } from '@/components/MemorialPreview'
@@ -34,6 +35,15 @@ function compressImageToBlob(file: File, maxWidth: number, quality = 0.82): Prom
 }
 
 async function uploadFile(file: File, maxWidth?: number): Promise<string> {
+  // Videos: upload directly from browser to Vercel Blob (bypasses 4.5MB function limit)
+  if (file.type.startsWith('video/')) {
+    const ext = file.name.split('.').pop() ?? 'mp4'
+    const filename = `videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const blob = await upload(filename, file, { access: 'public', handleUploadUrl: '/api/upload' })
+    return blob.url
+  }
+
+  // Images: compress first, then upload via server
   const formData = new FormData()
   if (maxWidth) {
     const compressed = await compressImageToBlob(file, maxWidth)
