@@ -53,6 +53,14 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
   const [uploading, setUploading] = useState(0)
   const [showPreview, setShowPreview] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'info' } | null>(null)
+  const toastTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = (message: string, type: 'error' | 'info' = 'error') => {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    setToast({ message, type })
+    toastTimer.current = setTimeout(() => setToast(null), 4000)
+  }
 
   const maxStorage = data.plan === 'premium' ? 300 : 100
   const currentSize = (data.media.length * 2) + (data.videos.length * 15)
@@ -62,7 +70,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
     const files = e.target.files
     if (!files) return
     if (currentSize >= maxStorage) {
-      alert('Limita de stocare pentru acest plan a fost atinsă.')
+      showToast('Limita de stocare pentru acest plan a fost atinsă.')
       return
     }
     Array.from(files).forEach(async file => {
@@ -75,7 +83,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
           setData(prev => ({ ...prev, videos: [...prev.videos, url] }))
         }
       } catch {
-        alert('Încărcarea fișierului a eșuat. Încearcă din nou.')
+        showToast('Încărcarea fișierului a eșuat. Încearcă din nou.')
       } finally {
         setUploading(n => n - 1)
       }
@@ -91,7 +99,18 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden max-w-4xl w-full">
+    <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden max-w-4xl w-full relative">
+      {toast && (
+        <div className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium max-w-sm w-full mx-4 transition-all ${
+          toast.type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-amber-50 border border-amber-200 text-amber-900'
+        }`}>
+          <span className="text-base">{toast.type === 'error' ? '⚠️' : 'ℹ️'}</span>
+          <span className="flex-1">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="text-current opacity-50 hover:opacity-100 transition-opacity">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      )}
       <div className="bg-stone-900 text-white p-5 sm:p-8 flex justify-between items-start">
         <div>
           <h2 className="text-3xl serif">Designer Memorial</h2>
@@ -118,7 +137,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
             key={tab}
             onClick={() => {
               if (tab === 'videos' && data.plan === 'basic') {
-                alert('Videoclipurile sunt disponibile doar în planurile Premium.')
+                showToast('Videoclipurile sunt disponibile doar în planurile Premium.', 'info')
                 return
               }
               setActiveTab(tab)
@@ -148,7 +167,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
                       try {
                         const url = await uploadFile(file, 800)
                         setData(prev => ({ ...prev, profilePhoto: url }))
-                      } catch { alert('Încărcarea a eșuat.') }
+                      } catch { showToast('Încărcarea a eșuat.') }
                       finally { setUploading(n => n - 1) }
                     }} />
                     {data.profilePhoto ? (
@@ -175,7 +194,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
                       try {
                         const url = await uploadFile(file, 1400)
                         setData(prev => ({ ...prev, bannerPhoto: url }))
-                      } catch { alert('Încărcarea a eșuat.') }
+                      } catch { showToast('Încărcarea a eșuat.') }
                       finally { setUploading(n => n - 1) }
                     }} />
                     {data.bannerPhoto ? (

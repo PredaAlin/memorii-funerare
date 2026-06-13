@@ -25,6 +25,7 @@ interface Props {
 export function EditForm({ memorial }: Props) {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const initialData: MemorialContent = {
     id: memorial.id,
@@ -63,7 +64,7 @@ export function EditForm({ memorial }: Props) {
       if (!res.ok) throw new Error('Save failed')
       router.push('/dashboard?saved=1')
     } catch {
-      alert('Salvarea a eșuat. Încearcă din nou.')
+      setSaveError('Salvarea a eșuat. Încearcă din nou.')
     } finally {
       setSaving(false)
     }
@@ -71,6 +72,15 @@ export function EditForm({ memorial }: Props) {
 
   return (
     <div className="w-full max-w-4xl">
+      {saveError && (
+        <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-medium">
+          <span>⚠️</span>
+          <span className="flex-1">{saveError}</span>
+          <button onClick={() => setSaveError(null)} className="opacity-50 hover:opacity-100 transition-opacity">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      )}
       <MemorialEditor
         initialData={initialData}
         onSave={handleSave}
