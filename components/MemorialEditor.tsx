@@ -124,7 +124,6 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
         <div className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium max-w-sm w-full mx-4 transition-all ${
           toast.type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-amber-50 border border-amber-200 text-amber-900'
         }`}>
-          <span className="text-base">{toast.type === 'error' ? '⚠️' : 'ℹ️'}</span>
           <span className="flex-1">{toast.message}</span>
           <button onClick={() => setToast(null)} className="text-current opacity-50 hover:opacity-100 transition-opacity">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
