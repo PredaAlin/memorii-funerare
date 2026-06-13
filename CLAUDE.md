@@ -64,7 +64,7 @@ This is a **Next.js 15 App Router** app (TypeScript, Tailwind CSS v3, React 19).
 | Route | Type | Notes |
 |---|---|---|
 | `/` | Static SSR | Server component, pricing section is a client component |
-| `/cart` | Client | All cart state lives in CartContext. Previzualizare button opens inline `MemorialPreview` modal. "Salvează Memorial" in editor redirects here with `?saved=1` toast. |
+| `/cart` | Client | All cart state lives in CartContext. Previzualizare button opens inline `MemorialPreview` modal. "Salvează Memorial" in editor redirects here with `?saved=1` toast. Cart item shows **profile photo thumbnail** when one has been set (falls back to QR placeholder SVG). Bottom of items list has an **"Adaugă un alt memorial"** strip with Basic/Premium buttons — calls `addToCart(plan)` and redirects to `/editor?id=<newId>`. |
 | `/editor?id=xxx` | Client | Reads cart item by ID from CartContext. On save → redirects to `/cart?saved=1` |
 | `/preview?id=xxx` | ~~deleted~~ | Was the phone-mockup preview page — removed; replaced by inline modals in the cart and editor |
 | `/checkout` | Client | Payment method selector (card → Stripe, ramburs → direct); creates order |
@@ -81,16 +81,16 @@ This is a **Next.js 15 App Router** app (TypeScript, Tailwind CSS v3, React 19).
 
 All cart state lives in `contexts/CartContext.tsx` — a client-side context that persists to `localStorage` under keys `em_cart` and `em_shipping`. There is no server-side cart session.
 
-Media (photos/videos) is **uploaded to Vercel Blob immediately** when the user selects a file in the editor (`POST /api/upload`). Only the resulting URL is stored in cart state. At order creation (`POST /api/orders`), `uploadIfBase64` detects that the values are already URLs and skips re-uploading. This avoids the ~5MB `localStorage` quota limit that base64 storage hit in practice.
+Media (photos/videos) is **uploaded directly from the browser to Vercel Blob** when the user selects a file in the editor, using `upload()` from `@vercel/blob/client`. Images are canvas-compressed first (in the browser), then uploaded client-side. Videos upload client-side without compression. The `/api/upload` route is a token handshake only — no file data passes through it — so Vercel's 4.5MB function payload limit is never hit regardless of file size. Only the resulting Blob URL is stored in cart state. At order creation (`POST /api/orders`), `uploadIfBase64` detects that the values are already URLs and skips re-uploading. This avoids the ~5MB `localStorage` quota limit that base64 storage hit in practice.
 
 ### Key files
 
 - `app/layout.tsx` — Root layout with `Providers` (SessionProvider + CartProvider), Navigation, footer, and Organization JSON-LD schema. Uses `next/font/google` for Cinzel + Inter.
-- `contexts/CartContext.tsx` — Cart state, shipping info, validation logic, localStorage sync
+- `contexts/CartContext.tsx` — Cart state, shipping info, validation logic, localStorage sync. `addToCart(plan)` returns the new item's ID (string) so callers can redirect straight to the editor.
 - `components/Providers.tsx` — Client wrapper for NextAuth + Cart providers
 - `components/Navigation.tsx` — Hides on `/memorial/*` routes. Shows Admin link only when `session.user.email === NEXT_PUBLIC_ADMIN_EMAIL`. Responsive: full link row on `md+`, hamburger dropdown on mobile.
 - `components/PricingSection.tsx` — Client component for "Add to Cart" buttons (only interactive part of home page)
-- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs. File uploads go to Vercel Blob immediately via `POST /api/upload` (images are Canvas-compressed first); Save button is disabled while uploads are pending. Media tab supports **drag-to-reorder** (HTML5 drag-and-drop, six-dot handle, no library). Footer has a **"Previzualizare" button** that opens the `MemorialPreview` phone-frame in a full-screen modal. Accepts optional `saveLabel` prop to customise the save button text.
+- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs. File uploads go directly to Vercel Blob from the browser via `@vercel/blob/client` `upload()` (images are canvas-compressed first); Save button is disabled while uploads are pending. Storage bar tracks **actual file sizes** (`file.size` recorded at upload time; pre-existing files fall back to 2MB/image and 15MB/video estimates). Storage limit is enforced at upload time (per-file check against remaining capacity) and again at save time. Error/info messages use an **inline toast** (auto-dismisses after 4s, has an × button) — no `alert()` calls. Media tab supports **drag-to-reorder** (HTML5 drag-and-drop, six-dot handle, no library). Footer has a **"Previzualizare" button** that opens the `MemorialPreview` phone-frame in a full-screen modal. Accepts optional `saveLabel` prop to customise the save button text.
 - `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page and the editor's Previzualizare modal). **Client component** with sticky tabbed navigation: Info, Galerie (only when mediaUrls present), Videoclipuri (only when videoUrls present). Applies theme via inline styles using `c.text` / `c.textMuted` for name/dates — never hardcoded white.
 - `components/MemorialPreview.tsx` — Phone-frame preview wrapper used in inline modals (editor's Previzualizare button and cart's Previzualizare button); applies theme via inline styles
 - `components/ImageGalleryCarousel.tsx` — Client component: responsive grid of photos that opens a full-screen lightbox on click; keyboard (←/→/Esc) and touch-swipe navigation; used inside `MemorialView`.
@@ -127,7 +127,7 @@ Media (photos/videos) is **uploaded to Vercel Blob immediately** when the user s
 | `GET/POST /api/auth/[...nextauth]` | — | NextAuth handler |
 | `GET/POST /api/memorials` | Required | List / create memorials |
 | `GET/PATCH /api/memorials/[id]` | Owner only | Read / update a memorial. PATCH accepts: `deceasedName`, `birthDate`, `deathDate`, `bio`, `quote`, `mediaUrls`, `videoUrls`, `theme`, `profilePhotoUrl`, `bannerPhotoUrl` |
-| `POST /api/upload` | — | Accept a file via FormData, upload to Vercel Blob, return `{ url }`. Called by the editor on every file select. Images are Canvas-compressed before sending. |
+| `POST /api/upload` | — | Client-side upload token handshake only — no file data passes through this function. Uses `handleUpload` from `@vercel/blob/client`. Both images and videos upload directly from the browser to Vercel Blob; the function just issues a signed token. |
 | `POST /api/orders` | Required | Create Memorial + Order (media already in Blob as URLs); for `card`: return Stripe Checkout URL; for `ramburs`: publish memorial immediately, set status `paid`, send emails, return `/success?ramburs=1` |
 | `POST /api/webhooks/stripe` | Stripe sig | Marks card orders paid, publishes memorials, sends confirmation emails (ramburs orders are never touched here — no `stripeSessionId`) |
 | `PATCH /api/admin/orders/[id]` | Admin only | Update order status; on → `shipped` sends customer shipping notification; on → `delivered` sends customer thank-you + review link |
@@ -273,3 +273,9 @@ DELETE FROM "User" WHERE id = '<user-id>';
 **Use JPEG not PNG for large static images.** A 2.2MB PNG in `public/` caused `INVALID_IMAGE_OPTIMIZE_REQUEST` on Vercel's image optimization. Convert large images to JPEG before committing: `node -e "require('sharp')('public/img.png').resize(1400).jpeg({quality:82}).toFile('public/img.jpg')"`. Sharp is available as a Next.js dependency.
 
 **Terminology: use "Memorial" not "Memoriu".** All user-facing strings use "Memorial" (e.g. "Memorial de Bază", "Memorial fără titlu", "Memorialele mele"). Do not reintroduce the old "Memoriu" spelling.
+
+**All file uploads must bypass the serverless function.** Vercel functions have a 4.5MB payload limit — routing any file through `/api/upload` via FormData will 413 on larger images and almost any video. The correct pattern: canvas-compress images in the browser, then call `upload(filename, blob, { access: 'public', handleUploadUrl: '/api/upload' })` from `@vercel/blob/client`. The `/api/upload` route only runs `handleUpload` as a token handshake — no file bytes pass through it. Never reintroduce `put()` or FormData file uploads in that route.
+
+**Do not store media as base64 in localStorage.** Raw `FileReader.readAsDataURL()` output for a few photos easily exceeds the ~5MB localStorage quota, throwing `QuotaExceededError`. Upload to Vercel Blob immediately on file select, store only the URL. `uploadIfBase64` in `POST /api/orders` already skips re-uploading if the value is already a URL.
+
+**Use inline toasts, not `alert()`.** `MemorialEditor` has a `showToast(message, type)` helper (error = red, info = amber) with auto-dismiss and an × button. `EditForm` has a `saveError` state with a persistent red banner above the editor. Never add `alert()` calls — they block the UI thread and look out of place.
