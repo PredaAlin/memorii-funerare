@@ -9,6 +9,7 @@ export interface FamilyPartner {
   name: string
   relation?: string
   isSelf?: boolean
+  memorialId?: string               // optional link to that person's memorial page
 }
 
 export interface FamilyMember {
@@ -16,6 +17,7 @@ export interface FamilyMember {
   name: string
   relation?: string                 // free label, e.g. "Tată", "Bunic"
   isSelf?: boolean                  // the deceased — highlighted; at most one in the tree (incl. partners)
+  memorialId?: string               // optional link to that person's memorial page
   spouse?: FamilyPartner | null
   children: FamilyMember[]
 }

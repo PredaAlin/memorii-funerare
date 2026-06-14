@@ -13,6 +13,8 @@ interface FamilyTreeProps {
   selectedId?: string
   onSelect?: (id: string) => void
   renderMenu?: (id: string) => React.ReactNode
+  // Read-only mode: ids of linked memorials confirmed published — those cards become links.
+  validMemorialIds?: string[]
 }
 
 interface CardCtx {
@@ -20,14 +22,17 @@ interface CardCtx {
   selectedId?: string
   onSelect?: (id: string) => void
   renderMenu?: (id: string) => React.ReactNode
+  validLinks: Set<string>
 }
 
 function PersonCard({
-  id, name, relation, self, ctx,
-}: { id: string; name: string; relation?: string; self?: boolean; ctx: CardCtx }) {
-  const { c, selectedId, onSelect, renderMenu } = ctx
+  id, name, relation, self, memorialId, ctx,
+}: { id: string; name: string; relation?: string; self?: boolean; memorialId?: string; ctx: CardCtx }) {
+  const { c, selectedId, onSelect, renderMenu, validLinks } = ctx
   const interactive = !!onSelect
   const selected = selectedId === id
+  // Only link on the public/read-only render, and only when the target is published.
+  const linked = !interactive && !!memorialId && validLinks.has(memorialId)
 
   const card = (
     <div
@@ -46,6 +51,7 @@ function PersonCard({
     >
       <div style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.2, color: self ? c.tabActive : c.text }}>
         {name || 'Fără nume'}
+        {linked && <span style={{ color: c.tabActive, marginLeft: 4, fontSize: 11 }}>↗</span>}
       </div>
       {relation && (
         <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: c.textMuted, marginTop: 2 }}>
@@ -64,6 +70,13 @@ function PersonCard({
       </div>
     )
   }
+  if (linked) {
+    return (
+      <a href={`/memorial/${memorialId}`} style={{ textDecoration: 'none' }}>
+        {card}
+      </a>
+    )
+  }
   return card
 }
 
@@ -74,7 +87,7 @@ function TreeNode({ node, ctx }: { node: FamilyMember; ctx: CardCtx }) {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* Couple row */}
       <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-        <PersonCard id={node.id} name={node.name} relation={node.relation} self={node.isSelf} ctx={ctx} />
+        <PersonCard id={node.id} name={node.name} relation={node.relation} self={node.isSelf} memorialId={node.memorialId} ctx={ctx} />
         {node.spouse && (
           <>
             <div style={{ width: 18, height: 2, background: c.tabActive, flexShrink: 0, marginTop: 18 }} />
@@ -83,6 +96,7 @@ function TreeNode({ node, ctx }: { node: FamilyMember; ctx: CardCtx }) {
               name={node.spouse.name}
               relation={node.spouse.relation}
               self={node.spouse.isSelf}
+              memorialId={node.spouse.memorialId}
               ctx={ctx}
             />
           </>
@@ -121,8 +135,8 @@ function TreeNode({ node, ctx }: { node: FamilyMember; ctx: CardCtx }) {
   )
 }
 
-export function FamilyTree({ tree, colors, selectedId, onSelect, renderMenu }: FamilyTreeProps) {
-  const ctx: CardCtx = { c: colors, selectedId, onSelect, renderMenu }
+export function FamilyTree({ tree, colors, selectedId, onSelect, renderMenu, validMemorialIds }: FamilyTreeProps) {
+  const ctx: CardCtx = { c: colors, selectedId, onSelect, renderMenu, validLinks: new Set(validMemorialIds) }
   return (
     <div className="overflow-x-auto no-scrollbar pb-2">
       <div style={{ display: 'inline-flex', justifyContent: 'center', minWidth: '100%', padding: '8px 4px' }}>

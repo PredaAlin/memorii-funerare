@@ -37,6 +37,7 @@ interface MemorialData {
 interface MemorialViewProps {
   memorial: MemorialData
   isOwner?: boolean
+  validMemorialIds?: string[]
 }
 
 function formatDate(dateString: string | null) {
@@ -44,7 +45,7 @@ function formatDate(dateString: string | null) {
   return new Date(dateString).toLocaleDateString('ro-RO', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-export function MemorialView({ memorial, isOwner = false }: MemorialViewProps) {
+export function MemorialView({ memorial, isOwner = false, validMemorialIds }: MemorialViewProps) {
   const coverPhoto = memorial.bannerPhotoUrl || memorial.mediaUrls[0]
   const profilePhoto = memorial.profilePhotoUrl || memorial.mediaUrls[0]
   const c = getTheme(memorial.theme).colors
@@ -148,7 +149,7 @@ export function MemorialView({ memorial, isOwner = false }: MemorialViewProps) {
                   >
                     Arbore genealogic
                   </h2>
-                  <FamilyTree tree={memorial.familyTree} colors={c} />
+                  <FamilyTree tree={memorial.familyTree} colors={c} validMemorialIds={validMemorialIds} />
                 </div>
               )}
             </div>

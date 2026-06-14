@@ -465,6 +465,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
               value={data.familyTree}
               onChange={t => setData(prev => ({ ...prev, familyTree: t }))}
               deceasedName={data.deceasedName}
+              currentMemorialId={data.id}
             />
           </div>
         )}
