@@ -51,7 +51,7 @@ async function uploadFile(file: File, maxWidth?: number): Promise<string> {
 
 export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onSave, onCancel, saveLabel }) => {
   const [data, setData] = useState<MemorialContent>(initialData)
-  const [activeTab, setActiveTab] = useState<'details' | 'tema' | 'media' | 'videos'>('details')
+  const [activeTab, setActiveTab] = useState<'details' | 'tema' | 'media' | 'videos' | 'interactiune'>('details')
   const [uploading, setUploading] = useState(0)
   const [showPreview, setShowPreview] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
@@ -147,7 +147,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
       </div>
 
       <div className="flex border-b border-stone-100 overflow-x-auto no-scrollbar">
-        {(['details', 'tema', 'media', 'videos'] as const).map(tab => (
+        {(['details', 'tema', 'media', 'videos', 'interactiune'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => {
@@ -162,7 +162,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
             } ${tab === 'videos' && data.plan === 'basic' ? 'opacity-30' : ''}`}
           >
             {tab === 'videos' && <span className="mr-1">📹</span>}
-            {tab === 'details' ? 'detalii' : tab === 'tema' ? 'temă' : tab === 'media' ? 'media' : 'videoclipuri'}
+            {tab === 'details' ? 'detalii' : tab === 'tema' ? 'temă' : tab === 'media' ? 'media' : tab === 'videos' ? 'videoclipuri' : 'interacțiune'}
           </button>
         ))}
       </div>
@@ -394,6 +394,46 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'interactiune' && (
+          <div className="space-y-4">
+            <p className="text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">Funcții interactive pentru vizitatori</p>
+            {([
+              {
+                key: 'candlesEnabled' as const,
+                icon: '🕯️',
+                title: 'Lumânare virtuală',
+                desc: 'Vizitatorii pot aprinde o lumânare în memoria celui drag. Pagina afișează câte lumânări au fost aprinse.',
+              },
+              {
+                key: 'memoriesEnabled' as const,
+                icon: '💬',
+                title: 'Țin minte când…',
+                desc: 'Vizitatorii pot lăsa o amintire (nume, relație și mesaj). Poți șterge oricând mesajele nepotrivite de pe pagina publică.',
+              },
+            ]).map(({ key, icon, title, desc }) => {
+              const enabled = data[key] !== false
+              return (
+                <div key={key} className="flex items-start gap-4 p-5 rounded-2xl border border-stone-200 bg-stone-50">
+                  <div className="text-2xl leading-none mt-0.5">{icon}</div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-stone-800">{title}</h3>
+                    <p className="text-sm text-stone-500 mt-1 leading-relaxed">{desc}</p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={enabled}
+                    onClick={() => setData(prev => ({ ...prev, [key]: !enabled }))}
+                    className={`relative shrink-0 w-12 h-7 rounded-full transition-colors ${enabled ? 'bg-amber-600' : 'bg-stone-300'}`}
+                  >
+                    <span className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${enabled ? 'translate-x-5' : ''}`} />
+                  </button>
+                </div>
+              )
+            })}
           </div>
         )}
 

@@ -75,10 +75,26 @@ model Memorial {
   profilePhotoUrl String?
   bannerPhotoUrl  String?
   theme        String   @default("clasic")
+  candlesEnabled  Boolean   @default(true)
+  memoriesEnabled Boolean   @default(true)
+  candleCount     Int       @default(0)
+  tributes        Tribute[]
   isPublished  Boolean  @default(false)
   order        Order?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model Tribute {
+  id           String   @id @default(cuid())
+  memorialId   String
+  memorial     Memorial @relation(fields: [memorialId], references: [id], onDelete: Cascade)
+  authorName   String
+  relationship String?
+  body         String   @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([memorialId])
 }
 
 model Order {

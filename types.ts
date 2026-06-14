@@ -15,6 +15,8 @@ export interface MemorialContent {
   quote: string
   plan: MemorialPlan
   theme: MemorialThemeId
+  candlesEnabled: boolean
+  memoriesEnabled: boolean
 }
 
 export interface ShippingInfo {

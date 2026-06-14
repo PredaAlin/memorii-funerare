@@ -56,6 +56,8 @@ export async function POST(req: NextRequest) {
         quote: item.memorialData.quote || null,
         plan: item.memorialData.plan,
         theme: item.memorialData.theme ?? 'clasic',
+        candlesEnabled: item.memorialData.candlesEnabled ?? true,
+        memoriesEnabled: item.memorialData.memoriesEnabled ?? true,
         mediaUrls,
         videoUrls,
         profilePhotoUrl,

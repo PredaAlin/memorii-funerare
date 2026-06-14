@@ -59,6 +59,20 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
               <span className="w-1 h-1 rounded-full" style={{ background: c.tabActive }}></span>
               <span>{formatDate(data.deathDate)}</span>
             </div>
+
+            {data.candlesEnabled && (
+              <div
+                className="mt-4 rounded-xl px-3 py-2 flex items-center gap-2"
+                style={{ background: c.surfaceAlt, border: `1px solid ${c.borderAlt}` }}
+              >
+                <span className="text-lg leading-none">🕯️</span>
+                <div className="flex-1">
+                  <p className="text-[9px] font-bold" style={{ color: c.text }}>0 lumânări aprinse</p>
+                  <p className="text-[7px]" style={{ color: c.textMuted }}>Aprinde o lumânare</p>
+                </div>
+                <span className="text-[7px] font-bold uppercase tracking-widest px-2 py-1 rounded-full" style={{ background: c.tabActive, color: '#fff' }}>Aprinde</span>
+              </div>
+            )}
           </div>
 
           {/* Inline Navigation Tabs */}
@@ -97,6 +111,19 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
                 <p className="text-[11px] leading-relaxed whitespace-pre-wrap" style={{ color: c.text }}>
                   {data.bio || "Povestea urmează să fie spusă..."}
                 </p>
+                {data.memoriesEnabled && (
+                  <div className="mt-6">
+                    <h4
+                      className="text-[8px] font-bold uppercase tracking-widest mb-2 pb-1"
+                      style={{ color: c.sectionHeading, borderBottom: `1px solid ${c.border}` }}
+                    >
+                      Țin minte când…
+                    </h4>
+                    <div className="rounded-xl px-3 py-2" style={{ background: c.surfaceAlt, border: `1px solid ${c.borderAlt}` }}>
+                      <p className="text-[8px]" style={{ color: c.textMuted }}>Vizitatorii pot lăsa aici amintiri dragi.</p>
+                    </div>
+                  </div>
+                )}
                 <div className="mt-12 flex flex-col items-center gap-3 opacity-30">
                   <div className="w-16 h-16 p-2 rounded-lg shadow-sm" style={{ background: c.bg, border: `1px solid ${c.border}` }}>
                     <svg className="w-full h-full" style={{ color: c.border }} viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2z" fill="currentColor"/></svg>
