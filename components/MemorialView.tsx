@@ -43,8 +43,7 @@ function formatDate(dateString: string | null) {
 export function MemorialView({ memorial, isOwner = false }: MemorialViewProps) {
   const coverPhoto = memorial.bannerPhotoUrl || memorial.mediaUrls[0]
   const profilePhoto = memorial.profilePhotoUrl || memorial.mediaUrls[0]
-  const theme = getTheme(memorial.theme)
-  const c = theme.colors
+  const c = getTheme(memorial.theme).colors
 
   const tabs = [
     { id: 'info' as const, label: 'Info' },

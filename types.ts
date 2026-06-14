@@ -1,6 +1,8 @@
 export type MemorialPlan = 'basic' | 'premium'
 
-export type MemorialThemeId = 'clasic' | 'noapte' | 'natura' | 'serenitate' | 'vintage'
+export type MemorialThemeId =
+  | 'clasic' | 'noapte' | 'natura' | 'serenitate' | 'vintage'
+  | 'aurora' | 'smarald' | 'trandafir' | 'lavanda' | 'apus'
 
 export interface MemorialContent {
   id: string
