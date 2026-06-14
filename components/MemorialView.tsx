@@ -259,8 +259,8 @@ function TributesSection({ memorialId, initialTributes, isOwner, colors: c }: {
     e.preventDefault()
     if (submitting) return
     setFeedback(null)
-    if (!name.trim() || !message.trim()) {
-      setFeedback({ type: 'error', text: 'Completează numele și mesajul.' })
+    if (!message.trim()) {
+      setFeedback({ type: 'error', text: 'Scrie un mesaj.' })
       return
     }
     setSubmitting(true)
@@ -311,7 +311,7 @@ function TributesSection({ memorialId, initialTributes, isOwner, colors: c }: {
             value={name}
             onChange={e => setName(e.target.value)}
             maxLength={60}
-            placeholder="Numele tău"
+            placeholder="Numele tău (opțional)"
             className="px-4 py-2.5 rounded-xl text-sm outline-none"
             style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text }}
           />

@@ -17,13 +17,14 @@ export async function POST(req: NextRequest, { params }: Params) {
   }
 
   const body = await req.json().catch(() => null)
-  const authorName = typeof body?.authorName === 'string' ? body.authorName.trim() : ''
+  const authorNameRaw = typeof body?.authorName === 'string' ? body.authorName.trim() : ''
   const message = typeof body?.body === 'string' ? body.body.trim() : ''
   const relationshipRaw = typeof body?.relationship === 'string' ? body.relationship.trim() : ''
 
-  if (authorName.length < 1 || authorName.length > 60) {
-    return NextResponse.json({ error: 'Numele trebuie să aibă între 1 și 60 de caractere.' }, { status: 400 })
+  if (authorNameRaw.length > 60) {
+    return NextResponse.json({ error: 'Numele poate avea cel mult 60 de caractere.' }, { status: 400 })
   }
+  const authorName = authorNameRaw || 'Anonim'
   if (message.length < 1 || message.length > 1000) {
     return NextResponse.json({ error: 'Mesajul trebuie să aibă între 1 și 1000 de caractere.' }, { status: 400 })
   }
