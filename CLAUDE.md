@@ -90,12 +90,12 @@ Media (photos/videos) is **uploaded directly from the browser to Vercel Blob** w
 - `components/Providers.tsx` — Client wrapper for NextAuth + Cart providers
 - `components/Navigation.tsx` — Hides on `/memorial/*` routes. Shows Admin link only when `session.user.email === NEXT_PUBLIC_ADMIN_EMAIL`. Responsive: full link row on `md+`, hamburger dropdown on mobile.
 - `components/PricingSection.tsx` — Client component for "Add to Cart" buttons (only interactive part of home page)
-- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, and Videoclipuri tabs. File uploads go directly to Vercel Blob from the browser via `@vercel/blob/client` `upload()` (images are canvas-compressed first); Save button is disabled while uploads are pending. Storage bar tracks **actual file sizes** (`file.size` recorded at upload time; pre-existing files fall back to 2MB/image and 15MB/video estimates). Storage limit is enforced at upload time (per-file check against remaining capacity) and again at save time. Error/info messages use an **inline toast** (auto-dismisses after 4s, has an × button) — no `alert()` calls. Media tab supports **drag-to-reorder** (HTML5 drag-and-drop, six-dot handle, no library). Footer has a **"Previzualizare" button** that opens the `MemorialPreview` phone-frame in a full-screen modal. Accepts optional `saveLabel` prop to customise the save button text.
-- `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page and the editor's Previzualizare modal). **Client component** with sticky tabbed navigation: Info, Galerie (only when mediaUrls present), Videoclipuri (only when videoUrls present). Applies theme via inline styles using `c.text` / `c.textMuted` for name/dates — never hardcoded white.
+- `components/MemorialEditor.tsx` — Tabbed editor with Detalii, Temă, Media, Videoclipuri, and **Interacțiune** tabs. The Interacțiune tab has two toggle switches — **Lumânare virtuală** (`candlesEnabled`) and **Țin minte când** (`memoriesEnabled`) — available on all plans. File uploads go directly to Vercel Blob from the browser via `@vercel/blob/client` `upload()` (images are canvas-compressed first); Save button is disabled while uploads are pending. Storage bar tracks **actual file sizes** (`file.size` recorded at upload time; pre-existing files fall back to 2MB/image and 15MB/video estimates). Storage limit is enforced at upload time (per-file check against remaining capacity) and again at save time. Error/info messages use an **inline toast** (auto-dismisses after 4s, has an × button) — no `alert()` calls. Media tab supports **drag-to-reorder** (HTML5 drag-and-drop, six-dot handle, no library). Footer has a **"Previzualizare" button** that opens the `MemorialPreview` phone-frame in a full-screen modal. Accepts optional `saveLabel` prop to customise the save button text.
+- `components/MemorialView.tsx` — Public memorial content (used in the SSR `/memorial/[id]` page and the editor's Previzualizare modal). **Client component** with sticky tabbed navigation: Info, Galerie (only when mediaUrls present), Videoclipuri (only when videoUrls present), Amintiri (only when `memoriesEnabled`). When `candlesEnabled`, a **virtual candle widget** sits under the name/dates header (live count + "Aprinde" button; optimistic increment, `localStorage['em_candle_<id>']` one-per-browser dedup). The **Amintiri** tab holds the "Țin minte când" submit form + tributes list; when `isOwner` is passed, each tribute shows a "Șterge" delete button. Applies theme via inline styles using `c.text` / `c.textMuted` for name/dates — never hardcoded white.
 - `components/MemorialPreview.tsx` — Phone-frame preview wrapper used in inline modals (editor's Previzualizare button and cart's Previzualizare button); applies theme via inline styles
 - `components/ImageGalleryCarousel.tsx` — Client component: responsive grid of photos that opens a full-screen lightbox on click; keyboard (←/→/Esc) and touch-swipe navigation; used inside `MemorialView`.
 - `components/SiteFooter.tsx` — Client component wrapping the site footer; returns `null` on `/memorial/*` routes so the footer is hidden for QR-scan visitors. Same `usePathname()` pattern as `Navigation`.
-- `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Five themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
+- `lib/themes.ts` — Theme definitions (`THEMES` array, `getTheme(id)` helper). Ten themes: `clasic`, `noapte`, `natura`, `serenitate`, `vintage`, `aurora`, `smarald`, `trandafir`, `lavanda`, `apus`. Each exports a `colors` object used directly as inline styles in `MemorialView` and `MemorialPreview`.
 - `app/edit/[id]/page.tsx` — Server component: auth check, ownership check, DB fetch, passes data to `EditForm`
 - `app/edit/[id]/EditForm.tsx` — Client component: maps DB memorial → `MemorialContent`, renders `MemorialEditor` with `saveLabel="Actualizează Memorialul"`, calls `PATCH /api/memorials/[id]` on save, then redirects to `/dashboard?saved=1`
 - `app/dashboard/SavedToast.tsx` — Client component: reads `?saved=1` from URL via `useSearchParams`, shows green success toast, then calls `router.replace('/dashboard')` to clean the URL. Must be wrapped in `<Suspense>` in the dashboard page.
@@ -107,7 +107,8 @@ Media (photos/videos) is **uploaded directly from the browser to Vercel Blob** w
 - `lib/db.ts` — Prisma singleton (global pattern to avoid connection leaks in dev)
 - `lib/stripe.ts` — Lazy Stripe client (`getStripe()` function, not module-level constant)
 - `lib/email.ts` — Resend email helpers: `sendPaymentConfirmation`, `sendAdminNewOrder` (includes QR attachment), `sendShippedNotification`, `sendDeliveredNotification`, `buildOrderEmailData`
-- `prisma/schema.prisma` — `User`, `Memorial`, `Order`, `Review` + NextAuth tables. `Memorial` has `theme String @default("clasic")`. `Order` has `paymentMethod String @default("card")` (`"card"` | `"ramburs"`). `Review` has `orderId @unique` (one review per order) with cascade deletes on both `userId` and `orderId`.
+- `prisma/schema.prisma` — `User`, `Memorial`, `Order`, `Review`, `Tribute` + NextAuth tables. `Memorial` has `theme String @default("clasic")`, plus `candlesEnabled`/`memoriesEnabled` (`Boolean @default(true)`) and `candleCount Int @default(0)`. `Tribute` (a visitor-submitted "Țin minte când" memory) has `authorName`, optional `relationship`, `body`, and `memorialId` with `onDelete: Cascade` (deleting a Memorial removes its tributes). `Order` has `paymentMethod String @default("card")` (`"card"` | `"ramburs"`). `Review` has `orderId @unique` (one review per order) with cascade deletes on both `userId` and `orderId`.
+- `lib/rateLimit.ts` — Best-effort in-memory IP rate limiter (`rateLimit(key, max, windowMs)` + `clientIp(req)`). Resets on serverless cold start — a soft guard, not a hard boundary. Used by the public candle + tributes POST routes.
 - `app/reviews/page.tsx` — Dynamic SSR: public reviews list with avg rating, seed reviews, "Scrie o recenzie" button (only when session user has an eligible delivered order), "Editează" link on own reviews
 - `app/reviews/write/page.tsx` — Server shell: auth check, order eligibility check; if review already exists passes it as `existing` prop to `ReviewForm` (edit mode), otherwise create mode
 - `app/reviews/write/ReviewForm.tsx` — Client component: interactive star picker, textarea, POST to `/api/reviews` (create) or PATCH to `/api/reviews/[id]` (edit); detects mode via `existing` prop
@@ -126,7 +127,10 @@ Media (photos/videos) is **uploaded directly from the browser to Vercel Blob** w
 | `POST /api/auth/register` | — | Create account (email + bcrypt password) |
 | `GET/POST /api/auth/[...nextauth]` | — | NextAuth handler |
 | `GET/POST /api/memorials` | Required | List / create memorials |
-| `GET/PATCH /api/memorials/[id]` | Owner only | Read / update a memorial. PATCH accepts: `deceasedName`, `birthDate`, `deathDate`, `bio`, `quote`, `mediaUrls`, `videoUrls`, `theme`, `profilePhotoUrl`, `bannerPhotoUrl` |
+| `GET/PATCH /api/memorials/[id]` | Owner only | Read / update a memorial. PATCH accepts: `deceasedName`, `birthDate`, `deathDate`, `bio`, `quote`, `mediaUrls`, `videoUrls`, `theme`, `candlesEnabled`, `memoriesEnabled`, `profilePhotoUrl`, `bannerPhotoUrl` |
+| `POST /api/memorials/[id]/candle` | — | Increment the memorial's candle count (public). 404 if unpublished or `candlesEnabled` off; IP rate-limited (10/min) |
+| `POST /api/memorials/[id]/tributes` | — | Submit a "Țin minte când" memory (public, auto-published). 404 if unpublished or `memoriesEnabled` off. Validates name ≤60 (blank → "Anonim"), body 1–1000, relationship ≤40; IP rate-limited (3 / 10 min) |
+| `DELETE /api/memorials/[id]/tributes/[tributeId]` | Owner only | Delete a tribute (owner moderation of bad messages) |
 | `POST /api/upload` | — | Client-side upload token handshake only — no file data passes through this function. Uses `handleUpload` from `@vercel/blob/client`. Both images and videos upload directly from the browser to Vercel Blob; the function just issues a signed token. |
 | `POST /api/orders` | Required | Create Memorial + Order (media already in Blob as URLs); for `card`: return Stripe Checkout URL; for `ramburs`: publish memorial immediately, set status `paid`, send emails, return `/success?ramburs=1` |
 | `POST /api/webhooks/stripe` | Stripe sig | Marks card orders paid, publishes memorials, sends confirmation emails (ramburs orders are never touched here — no `stripeSessionId`) |
@@ -177,6 +181,13 @@ The admin shipped QR email uses size `400x400` and fetches the PNG as a buffer t
 - Users can edit their own review via the "Editează" link on their card; `/reviews/write?orderId=xxx` detects the existing review and switches to edit mode
 - The `sendDeliveredNotification` email includes a direct link to `/reviews/write?orderId=xxx`
 
+### Visitor interaction (candle & memories)
+
+Two visitor-facing features on the public memorial page, each toggled per memorial by the owner in the editor's Interacțiune tab (`candlesEnabled` / `memoriesEnabled`, both default `true`). The toggles live on `MemorialContent` (cart/editor), flow through `POST /api/orders` and `PATCH /api/memorials/[id]`, and persist to `Memorial`.
+
+- **Lumânare virtuală** — visitors tap "Aprinde" to light a candle; `Memorial.candleCount` increments via `POST /api/memorials/[id]/candle`. Client uses optimistic update + `localStorage['em_candle_<id>']` to mark one-per-browser; server adds a best-effort IP rate-limit. The widget shows the live count under the name/dates header.
+- **Țin minte când** (`Tribute` model) — visitors submit a memory (name + optional relationship + message) via `POST /api/memorials/[id]/tributes`. Memories **auto-publish** immediately. The `/memorial/[id]` page detects the owner via `getServerSession` and passes `isOwner` to `MemorialView`; when true, each memory shows a "Șterge" button (`DELETE …/tributes/[tributeId]`) for reactive moderation of bad messages. Blank name defaults to "Anonim".
+
 ### Checkout flow
 
 1. User adds plan(s) to cart (no auth required)
@@ -207,7 +218,7 @@ Prices are defined in `contexts/CartContext.tsx` (`PRICES` constant). Currency i
 
 ### Themes
 
-Memorial pages support five visual themes selectable in the editor's "Temă" tab:
+Memorial pages support ten visual themes selectable in the editor's "Temă" tab:
 
 | ID | Name | Character |
 |---|---|---|
@@ -216,6 +227,11 @@ Memorial pages support five visual themes selectable in the editor's "Temă" tab
 | `natura` | Natură | Warm off-white, sage green |
 | `serenitate` | Serenitate | Light blue, deep navy text |
 | `vintage` | Vintage | Warm cream/parchment, terracotta accents |
+| `aurora` | Aurora | Dark midnight blue, teal/violet accents |
+| `smarald` | Smarald | Deep emerald green, gold accents (dark) |
+| `trandafir` | Trandafir | Soft blush rose, burgundy text |
+| `lavanda` | Lavandă | Lilac background, deep plum text |
+| `apus` | Apus | Warm peach/coral, rust text |
 
 Themes are implemented as inline CSS styles (not Tailwind classes) so all color variants are available at runtime without a Tailwind purge concern. The `theme` value is stored in `MemorialContent.theme` (cart/editor), persisted to `Memorial.theme` in the DB, and read by both `MemorialPreview` and `MemorialView` via `getTheme()` from `lib/themes.ts`. To add a new theme, add an entry to the `THEMES` array in `lib/themes.ts` — no other changes needed.
 
