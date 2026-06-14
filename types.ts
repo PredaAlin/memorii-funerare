@@ -4,6 +4,22 @@ export type MemorialThemeId =
   | 'clasic' | 'noapte' | 'natura' | 'serenitate' | 'vintage'
   | 'aurora' | 'smarald' | 'trandafir' | 'lavanda' | 'apus'
 
+export interface FamilyPartner {
+  id: string
+  name: string
+  relation?: string
+  isSelf?: boolean
+}
+
+export interface FamilyMember {
+  id: string
+  name: string
+  relation?: string                 // free label, e.g. "Tată", "Bunic"
+  isSelf?: boolean                  // the deceased — highlighted; at most one in the tree (incl. partners)
+  spouse?: FamilyPartner | null
+  children: FamilyMember[]
+}
+
 export interface MemorialContent {
   id: string
   deceasedName: string
@@ -19,6 +35,8 @@ export interface MemorialContent {
   theme: MemorialThemeId
   candlesEnabled: boolean
   memoriesEnabled: boolean
+  familyTreeEnabled: boolean
+  familyTree: FamilyMember | null
 }
 
 export interface ShippingInfo {

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MemorialEditor } from '@/components/MemorialEditor'
-import type { MemorialContent, MemorialPlan, MemorialThemeId } from '@/types'
+import type { FamilyMember, MemorialContent, MemorialPlan, MemorialThemeId } from '@/types'
 
 interface Props {
   memorial: {
@@ -21,6 +21,8 @@ interface Props {
     plan: MemorialPlan
     candlesEnabled: boolean
     memoriesEnabled: boolean
+    familyTreeEnabled: boolean
+    familyTree: FamilyMember | null
   }
 }
 
@@ -44,6 +46,8 @@ export function EditForm({ memorial }: Props) {
     plan: memorial.plan,
     candlesEnabled: memorial.candlesEnabled,
     memoriesEnabled: memorial.memoriesEnabled,
+    familyTreeEnabled: memorial.familyTreeEnabled,
+    familyTree: memorial.familyTree,
   }
 
   const handleSave = async (data: MemorialContent) => {
@@ -63,6 +67,8 @@ export function EditForm({ memorial }: Props) {
           theme: data.theme,
           candlesEnabled: data.candlesEnabled,
           memoriesEnabled: data.memoriesEnabled,
+          familyTreeEnabled: data.familyTreeEnabled,
+          familyTree: data.familyTree,
           profilePhotoUrl: data.profilePhoto,
           bannerPhotoUrl: data.bannerPhoto,
         }),

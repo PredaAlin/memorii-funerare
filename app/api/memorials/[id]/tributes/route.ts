@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { rateLimit, clientIp } from '@/lib/rateLimit'
+import { sendNewTributeNotification } from '@/lib/email'
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -11,7 +12,10 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Ai trimis prea multe amintiri. Încearcă din nou mai târziu.' }, { status: 429 })
   }
 
-  const memorial = await db.memorial.findUnique({ where: { id } })
+  const memorial = await db.memorial.findUnique({
+    where: { id },
+    include: { user: { select: { email: true } } },
+  })
   if (!memorial || !memorial.isPublished || !memorial.memoriesEnabled) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
@@ -40,6 +44,18 @@ export async function POST(req: NextRequest, { params }: Params) {
       relationship: relationshipRaw || null,
     },
   })
+
+  // Notify the memorial owner — fire-and-forget so email failures never block submission.
+  if (memorial.user?.email) {
+    sendNewTributeNotification({
+      to: memorial.user.email,
+      deceasedName: memorial.deceasedName,
+      memorialId: id,
+      authorName,
+      relationship: tribute.relationship,
+      body: message,
+    }).catch(err => console.error('Failed to send tribute notification:', err))
+  }
 
   return NextResponse.json({
     id: tribute.id,

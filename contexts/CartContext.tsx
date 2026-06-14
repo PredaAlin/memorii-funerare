@@ -63,6 +63,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         id: '', deceasedName: '', birthDate: '', deathDate: '',
         bio: '', media: [], videos: [], profilePhoto: '', bannerPhoto: '', quote: '', plan, theme: 'clasic',
         candlesEnabled: true, memoriesEnabled: true,
+        familyTreeEnabled: false, familyTree: null,
       },
     }
     setCart(prev => [...prev, newItem])

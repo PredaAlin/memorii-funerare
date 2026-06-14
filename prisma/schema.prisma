@@ -78,6 +78,8 @@ model Memorial {
   candlesEnabled  Boolean   @default(true)
   memoriesEnabled Boolean   @default(true)
   candleCount     Int       @default(0)
+  familyTreeEnabled Boolean @default(false)
+  familyTree        Json?
   tributes        Tribute[]
   isPublished  Boolean  @default(false)
   order        Order?

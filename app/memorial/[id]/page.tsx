@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { MemorialView } from '@/components/MemorialView'
+import type { FamilyMember } from '@/types'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -39,5 +40,10 @@ export default async function MemorialPage({ params }: Props) {
     createdAt: t.createdAt.toISOString(),
   }))
 
-  return <MemorialView memorial={{ ...memorial, tributes }} isOwner={isOwner} />
+  return (
+    <MemorialView
+      memorial={{ ...memorial, tributes, familyTree: (memorial.familyTree ?? null) as FamilyMember | null }}
+      isOwner={isOwner}
+    />
+  )
 }

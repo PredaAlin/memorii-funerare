@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+import { Prisma } from '@prisma/client'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 
@@ -30,6 +31,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   const body = await req.json()
+  // Json? fields need Prisma.DbNull to clear (plain JS null is rejected).
+  const familyTree =
+    body.familyTree === undefined
+      ? undefined
+      : body.familyTree === null
+        ? Prisma.DbNull
+        : body.familyTree
   const updated = await db.memorial.update({
     where: { id },
     data: {
@@ -43,6 +51,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       theme: body.theme ?? memorial.theme,
       candlesEnabled: body.candlesEnabled ?? memorial.candlesEnabled,
       memoriesEnabled: body.memoriesEnabled ?? memorial.memoriesEnabled,
+      familyTreeEnabled: body.familyTreeEnabled ?? memorial.familyTreeEnabled,
+      familyTree,
       profilePhotoUrl: body.profilePhotoUrl !== undefined ? body.profilePhotoUrl : memorial.profilePhotoUrl,
       bannerPhotoUrl: body.bannerPhotoUrl !== undefined ? body.bannerPhotoUrl : memorial.bannerPhotoUrl,
     },

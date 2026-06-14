@@ -163,6 +163,38 @@ export async function sendDeliveredNotification(data: OrderEmailData) {
   })
 }
 
+export async function sendNewTributeNotification(data: {
+  to: string
+  deceasedName: string
+  memorialId: string
+  authorName: string
+  relationship?: string | null
+  body: string
+}) {
+  const memorialUrl = `${BASE_URL}/memorial/${data.memorialId}`
+  const author = data.relationship ? `${data.authorName} · ${data.relationship}` : data.authorName
+  const content = `
+    <h1 style="margin:0 0 8px;font-size:24px;color:#1c1917">O amintire nouă</h1>
+    <p style="margin:0 0 24px;color:#78716c;font-size:15px;font-family:Arial,sans-serif">Cineva a lăsat o amintire pe pagina memorială pentru <strong>${data.deceasedName}</strong>.</p>
+
+    <div style="background:#f5f4f0;border-radius:12px;padding:20px 24px;margin-bottom:24px">
+      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">De la</p>
+      <p style="margin:0 0 16px;font-size:16px;color:#1c1917;font-weight:bold">${author}</p>
+      <p style="margin:0 0 4px;font-size:13px;color:#a8a29e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px">Mesaj</p>
+      <p style="margin:0;font-size:15px;color:#1c1917;line-height:1.6;white-space:pre-wrap">${data.body}</p>
+    </div>
+
+    <p style="margin:0 0 16px;color:#57534e;font-size:14px;font-family:Arial,sans-serif">Amintirea este deja vizibilă pe pagină. Dacă mesajul este nepotrivit, îl poți șterge din pagina memorială.</p>
+    <a href="${memorialUrl}" style="display:inline-block;background:#1c1917;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:14px;font-family:Arial,sans-serif;font-weight:bold">Vezi Pagina Memorială</a>
+  `
+  await resend.emails.send({
+    from: FROM,
+    to: data.to,
+    subject: `O amintire nouă pentru ${data.deceasedName}`,
+    html: baseLayout(content),
+  })
+}
+
 export async function sendShippedNotification(data: OrderEmailData) {
   const content = `
     <h1 style="margin:0 0 8px;font-size:26px;color:#1c1917">Placa Ta a Fost Expediată</h1>

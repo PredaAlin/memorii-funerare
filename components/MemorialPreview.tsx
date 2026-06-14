@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { MemorialContent } from '../types';
 import { getTheme } from '@/lib/themes';
+import { FamilyTree } from '@/components/FamilyTree';
 
 interface MemorialPreviewProps {
   data: MemorialContent;
@@ -111,6 +112,17 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
                 <p className="text-[11px] leading-relaxed whitespace-pre-wrap" style={{ color: c.text }}>
                   {data.bio || "Povestea urmează să fie spusă..."}
                 </p>
+                {data.familyTreeEnabled && data.familyTree && (
+                  <div className="mt-6">
+                    <h4
+                      className="text-[8px] font-bold uppercase tracking-widest mb-2 pb-1"
+                      style={{ color: c.sectionHeading, borderBottom: `1px solid ${c.border}` }}
+                    >
+                      Arbore genealogic
+                    </h4>
+                    <FamilyTree tree={data.familyTree} colors={c} />
+                  </div>
+                )}
                 {data.memoriesEnabled && (
                   <div className="mt-6">
                     <h4
@@ -156,6 +168,7 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
                 )}
               </div>
             )}
+
           </div>
         </div>
 

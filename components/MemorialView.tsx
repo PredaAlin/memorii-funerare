@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { getTheme } from '@/lib/themes'
 import { ImageGalleryCarousel } from '@/components/ImageGalleryCarousel'
+import { FamilyTree } from '@/components/FamilyTree'
+import type { FamilyMember } from '@/types'
 
 interface Tribute {
   id: string
@@ -28,6 +30,8 @@ interface MemorialData {
   memoriesEnabled: boolean
   candleCount: number
   tributes: Tribute[]
+  familyTreeEnabled: boolean
+  familyTree: FamilyMember | null
 }
 
 interface MemorialViewProps {
@@ -134,6 +138,17 @@ export function MemorialView({ memorial, isOwner = false }: MemorialViewProps) {
                     Biografie
                   </h2>
                   <p className="leading-relaxed whitespace-pre-wrap" style={{ color: c.text }}>{memorial.bio}</p>
+                </div>
+              )}
+              {memorial.familyTreeEnabled && memorial.familyTree && (
+                <div className="mt-8">
+                  <h2
+                    className="text-xs font-bold uppercase tracking-widest mb-3 pb-2"
+                    style={{ color: c.sectionHeading, borderBottom: `1px solid ${c.border}` }}
+                  >
+                    Arbore genealogic
+                  </h2>
+                  <FamilyTree tree={memorial.familyTree} colors={c} />
                 </div>
               )}
             </div>

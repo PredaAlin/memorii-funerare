@@ -32,6 +32,8 @@ export default async function EditMemorialPage({ params }: Params) {
         plan: memorial.plan as import('@/types').MemorialPlan,
         candlesEnabled: memorial.candlesEnabled,
         memoriesEnabled: memorial.memoriesEnabled,
+        familyTreeEnabled: memorial.familyTreeEnabled,
+        familyTree: (memorial.familyTree ?? null) as import('@/types').FamilyMember | null,
       }} />
     </div>
   )

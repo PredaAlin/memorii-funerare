@@ -5,6 +5,7 @@ import { upload } from '@vercel/blob/client'
 import { MemorialContent } from '@/types'
 import { THEMES, getTheme } from '@/lib/themes'
 import { MemorialPreview } from '@/components/MemorialPreview'
+import { FamilyTreeEditor } from '@/components/FamilyTreeEditor'
 
 interface MemorialEditorProps {
   initialData: MemorialContent
@@ -51,7 +52,7 @@ async function uploadFile(file: File, maxWidth?: number): Promise<string> {
 
 export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onSave, onCancel, saveLabel }) => {
   const [data, setData] = useState<MemorialContent>(initialData)
-  const [activeTab, setActiveTab] = useState<'details' | 'tema' | 'media' | 'videos' | 'interactiune'>('details')
+  const [activeTab, setActiveTab] = useState<'details' | 'tema' | 'media' | 'videos' | 'interactiune' | 'arbore'>('details')
   const [uploading, setUploading] = useState(0)
   const [showPreview, setShowPreview] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
@@ -147,7 +148,7 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
       </div>
 
       <div className="flex border-b border-stone-100 overflow-x-auto no-scrollbar">
-        {(['details', 'tema', 'media', 'videos', 'interactiune'] as const).map(tab => (
+        {(['details', 'tema', 'media', 'videos', 'interactiune', 'arbore'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => {
@@ -155,14 +156,19 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
                 showToast('Videoclipurile sunt disponibile doar în planurile Premium.', 'info')
                 return
               }
+              if (tab === 'arbore' && data.plan === 'basic') {
+                showToast('Arborele genealogic este disponibil doar în planurile Premium.', 'info')
+                return
+              }
               setActiveTab(tab)
             }}
             className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${
               activeTab === tab ? 'text-stone-900 border-b-2 border-stone-900' : 'text-stone-400 hover:text-stone-600'
-            } ${tab === 'videos' && data.plan === 'basic' ? 'opacity-30' : ''}`}
+            } ${(tab === 'videos' || tab === 'arbore') && data.plan === 'basic' ? 'opacity-30' : ''}`}
           >
             {tab === 'videos' && <span className="mr-1">📹</span>}
-            {tab === 'details' ? 'detalii' : tab === 'tema' ? 'temă' : tab === 'media' ? 'media' : tab === 'videos' ? 'videoclipuri' : 'interacțiune'}
+            {tab === 'arbore' && <span className="mr-1">🌳</span>}
+            {tab === 'details' ? 'detalii' : tab === 'tema' ? 'temă' : tab === 'media' ? 'media' : tab === 'videos' ? 'videoclipuri' : tab === 'interactiune' ? 'interacțiune' : 'arbore'}
           </button>
         ))}
       </div>
@@ -434,6 +440,32 @@ export const MemorialEditor: React.FC<MemorialEditorProps> = ({ initialData, onS
                 </div>
               )
             })}
+          </div>
+        )}
+
+        {activeTab === 'arbore' && (
+          <div className="space-y-5">
+            <div className="flex items-start gap-4 p-5 rounded-2xl border border-stone-200 bg-stone-50">
+              <div className="text-2xl leading-none mt-0.5">🌳</div>
+              <div className="flex-1">
+                <h3 className="font-bold text-stone-800">Arbore genealogic</h3>
+                <p className="text-sm text-stone-500 mt-1 leading-relaxed">Afișează un arbore genealogic pe pagina memorială. Construiește-l mai jos — poți adăuga oricâte generații.</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={data.familyTreeEnabled}
+                onClick={() => setData(prev => ({ ...prev, familyTreeEnabled: !prev.familyTreeEnabled }))}
+                className={`relative shrink-0 w-12 h-7 rounded-full transition-colors ${data.familyTreeEnabled ? 'bg-amber-600' : 'bg-stone-300'}`}
+              >
+                <span className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${data.familyTreeEnabled ? 'translate-x-5' : ''}`} />
+              </button>
+            </div>
+            <FamilyTreeEditor
+              value={data.familyTree}
+              onChange={t => setData(prev => ({ ...prev, familyTree: t }))}
+              deceasedName={data.deceasedName}
+            />
           </div>
         )}
 

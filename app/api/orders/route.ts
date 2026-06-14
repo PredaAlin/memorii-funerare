@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getStripe } from '@/lib/stripe'
 import { put } from '@vercel/blob'
+import { Prisma } from '@prisma/client'
 import { buildOrderEmailData, sendPaymentConfirmation, sendAdminNewOrder } from '@/lib/email'
 import { CartItem, ShippingInfo } from '@/types'
 
@@ -58,6 +59,8 @@ export async function POST(req: NextRequest) {
         theme: item.memorialData.theme ?? 'clasic',
         candlesEnabled: item.memorialData.candlesEnabled ?? true,
         memoriesEnabled: item.memorialData.memoriesEnabled ?? true,
+        familyTreeEnabled: item.memorialData.familyTreeEnabled ?? false,
+        familyTree: (item.memorialData.familyTree ?? undefined) as Prisma.InputJsonValue | undefined,
         mediaUrls,
         videoUrls,
         profilePhotoUrl,
