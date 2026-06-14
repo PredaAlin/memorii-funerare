@@ -24,7 +24,7 @@ export const MemorialPreview: React.FC<MemorialPreviewProps> = ({ data }) => {
   const c = theme.colors;
 
   return (
-    <div className="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[300px] shadow-xl overflow-hidden">
+    <div className="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] max-h-[80vh] w-[300px] max-w-[88vw] shadow-xl overflow-hidden">
       <div className="rounded-[2rem] overflow-hidden w-full h-full relative flex flex-col" style={{ background: c.bg }}>
         {/* Notch / Status Bar */}
         <div className="h-6 w-full flex justify-between px-6 items-center text-[10px] font-bold text-gray-400 shrink-0">

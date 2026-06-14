@@ -210,16 +210,16 @@ function CartContent() {
         if (!item) return null
         return (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/80 p-4 overflow-y-auto"
             onClick={() => setPreviewItemId(null)}
           >
-            <div onClick={e => e.stopPropagation()} className="flex flex-col items-center">
-              <button
-                onClick={() => setPreviewItemId(null)}
-                className="mb-4 px-5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-bold transition-colors"
-              >
-                ✕ Închide previzualizarea
-              </button>
+            <button
+              onClick={() => setPreviewItemId(null)}
+              className="shrink-0 px-5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-bold transition-colors"
+            >
+              ✕ Închide previzualizarea
+            </button>
+            <div onClick={e => e.stopPropagation()} className="shrink-0">
               <MemorialPreview data={item.memorialData} />
             </div>
           </div>
