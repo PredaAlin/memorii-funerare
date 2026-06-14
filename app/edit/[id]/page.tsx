@@ -30,6 +30,8 @@ export default async function EditMemorialPage({ params }: Params) {
         videoUrls: memorial.videoUrls,
         theme: (memorial.theme ?? 'clasic') as import('@/types').MemorialThemeId,
         plan: memorial.plan as import('@/types').MemorialPlan,
+        candlesEnabled: memorial.candlesEnabled,
+        memoriesEnabled: memorial.memoriesEnabled,
       }} />
     </div>
   )

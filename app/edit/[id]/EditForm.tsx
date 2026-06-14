@@ -19,6 +19,8 @@ interface Props {
     videoUrls: string[]
     theme: MemorialThemeId
     plan: MemorialPlan
+    candlesEnabled: boolean
+    memoriesEnabled: boolean
   }
 }
 
@@ -40,6 +42,8 @@ export function EditForm({ memorial }: Props) {
     videos: memorial.videoUrls,
     theme: memorial.theme,
     plan: memorial.plan,
+    candlesEnabled: memorial.candlesEnabled,
+    memoriesEnabled: memorial.memoriesEnabled,
   }
 
   const handleSave = async (data: MemorialContent) => {
@@ -57,6 +61,8 @@ export function EditForm({ memorial }: Props) {
           mediaUrls: data.media,
           videoUrls: data.videos,
           theme: data.theme,
+          candlesEnabled: data.candlesEnabled,
+          memoriesEnabled: data.memoriesEnabled,
           profilePhotoUrl: data.profilePhoto,
           bannerPhotoUrl: data.bannerPhoto,
         }),

@@ -62,6 +62,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       memorialData: {
         id: '', deceasedName: '', birthDate: '', deathDate: '',
         bio: '', media: [], videos: [], profilePhoto: '', bannerPhoto: '', quote: '', plan, theme: 'clasic',
+        candlesEnabled: true, memoriesEnabled: true,
       },
     }
     setCart(prev => [...prev, newItem])
