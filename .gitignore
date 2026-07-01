@@ -21,6 +21,11 @@ tsconfig.tsbuildinfo
 # Unused assets
 public/gravestone.png
 
+# Installed agent skills (personal tooling, not app code)
+.agents/
+.claude/skills/
+skills-lock.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
