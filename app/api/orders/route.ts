@@ -7,6 +7,8 @@ import { put } from '@vercel/blob'
 import { Prisma } from '@prisma/client'
 import { buildOrderEmailData, sendPaymentConfirmation, sendAdminNewOrder } from '@/lib/email'
 import { CartItem, ShippingInfo } from '@/types'
+import { PLAN_PRICES, isValidPlan } from '@/lib/pricing'
+import { memorialTextError, mediaUrlsError, singleMediaUrlError, familyTreeError, LIMITS } from '@/lib/validation'
 
 // Convert a base64 data URL to a Vercel Blob URL
 async function uploadIfBase64(dataUrl: string, folder: string): Promise<string> {
@@ -42,10 +44,35 @@ export async function POST(req: NextRequest) {
   const orderIds: string[] = []
 
   for (const item of cart) {
-    const mediaUrls = await Promise.all(item.memorialData.media.map(m => uploadIfBase64(m, 'media')))
-    const videoUrls = await Promise.all(item.memorialData.videos.map(v => uploadIfBase64(v, 'videos')))
-    const profilePhotoUrl = item.memorialData.profilePhoto ? await uploadIfBase64(item.memorialData.profilePhoto, 'media') : null
-    const bannerPhotoUrl = item.memorialData.bannerPhoto ? await uploadIfBase64(item.memorialData.bannerPhoto, 'media') : null
+    const data = item.memorialData
+
+    // C1: derive the authoritative price server-side; never trust item.price.
+    if (!isValidPlan(data.plan)) {
+      return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
+    }
+    const price = PLAN_PRICES[data.plan]
+
+    // M1: cap text fields and the family-tree blob before persisting.
+    const textErr =
+      memorialTextError(data) ||
+      familyTreeError(data.familyTree) ||
+      (Array.isArray(data.media) && data.media.length > LIMITS.mediaCount ? 'Prea multe fotografii' : null) ||
+      (Array.isArray(data.videos) && data.videos.length > LIMITS.videoCount ? 'Prea multe videoclipuri' : null)
+    if (textErr) return NextResponse.json({ error: textErr }, { status: 400 })
+
+    const mediaUrls = await Promise.all(data.media.map(m => uploadIfBase64(m, 'media')))
+    const videoUrls = await Promise.all(data.videos.map(v => uploadIfBase64(v, 'videos')))
+    const profilePhotoUrl = data.profilePhoto ? await uploadIfBase64(data.profilePhoto, 'media') : null
+    const bannerPhotoUrl = data.bannerPhoto ? await uploadIfBase64(data.bannerPhoto, 'media') : null
+
+    // M1: finished media URLs must live on the Blob host (blocks arbitrary
+    // third-party URLs slipped in via a tampered cart).
+    const urlErr =
+      mediaUrlsError(mediaUrls, LIMITS.mediaCount, 'Fotografii') ||
+      mediaUrlsError(videoUrls, LIMITS.videoCount, 'Videoclipuri') ||
+      singleMediaUrlError(profilePhotoUrl, 'Poza de profil') ||
+      singleMediaUrlError(bannerPhotoUrl, 'Poza de copertă')
+    if (urlErr) return NextResponse.json({ error: urlErr }, { status: 400 })
 
     const memorial = await db.memorial.create({
       data: {
@@ -73,8 +100,8 @@ export async function POST(req: NextRequest) {
       data: {
         userId: session.user.id,
         memorialId: memorial.id,
-        plan: item.memorialData.plan,
-        price: item.price,
+        plan: data.plan,
+        price,
         status: isRamburs ? 'paid' : 'pending',
         paymentMethod,
         shippingName: shippingInfo.fullName,
@@ -116,7 +143,7 @@ export async function POST(req: NextRequest) {
           ? 'Lifetime hosting + video support, 300MB storage'
           : '10-year hosting, 100MB photo storage',
       },
-      unit_amount: Math.round(item.price * 100),
+      unit_amount: Math.round(PLAN_PRICES[item.memorialData.plan] * 100),
     },
     quantity: 1,
   }))

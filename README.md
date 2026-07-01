@@ -1,20 +1,16 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Eternal Memories
 
-# Run and deploy your AI Studio app
+QR memorial plaques linked to digital memorial pages. Next.js 15 (App Router),
+TypeScript, Tailwind, Prisma/PostgreSQL, NextAuth, Stripe, Vercel Blob, Resend.
 
-This contains everything you need to run your app locally.
+## Run locally
 
-View your app in AI Studio: https://ai.studio/apps/temp/1
+**Prerequisites:** Node.js, a PostgreSQL database (Neon).
 
-## Run Locally
+1. Install dependencies: `npm install`
+2. Create `.env.local` and `.env` with the required variables (see the table in
+   [CLAUDE.md](CLAUDE.md) → Environment Setup). Prisma reads `.env`; Next.js reads both.
+3. Apply the schema: `npm run db:push`
+4. Run the app: `npm run dev` → http://localhost:3000
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+See [CLAUDE.md](CLAUDE.md) for architecture, env vars, and deployment notes.
