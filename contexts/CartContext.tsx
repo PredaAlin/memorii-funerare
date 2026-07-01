@@ -2,11 +2,11 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { CartItem, MemorialContent, MemorialPlan, ShippingInfo } from '@/types'
+import { PLAN_PRICES } from '@/lib/pricing'
 
-export const PRICES: Record<MemorialPlan, number> = {
-  basic: 149.99,
-  premium: 199.99,
-}
+// Display prices only. The server re-derives the authoritative amount from
+// PLAN_PRICES at order creation — this client value is never trusted.
+export const PRICES: Record<MemorialPlan, number> = PLAN_PRICES
 
 const INITIAL_SHIPPING: ShippingInfo = {
   fullName: '', email: '', phone: '', address: '', city: '', postalCode: '',

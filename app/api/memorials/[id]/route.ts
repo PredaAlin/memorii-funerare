@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { Prisma } from '@prisma/client'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { memorialTextError, mediaUrlsError, singleMediaUrlError, familyTreeError, LIMITS } from '@/lib/validation'
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -31,6 +32,17 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   const body = await req.json()
+
+  // M1: cap text / media / family-tree inputs before persisting.
+  const inputErr =
+    memorialTextError(body) ||
+    familyTreeError(body.familyTree) ||
+    mediaUrlsError(body.mediaUrls, LIMITS.mediaCount, 'Fotografii') ||
+    mediaUrlsError(body.videoUrls, LIMITS.videoCount, 'Videoclipuri') ||
+    singleMediaUrlError(body.profilePhotoUrl, 'Poza de profil') ||
+    singleMediaUrlError(body.bannerPhotoUrl, 'Poza de copertă')
+  if (inputErr) return NextResponse.json({ error: inputErr }, { status: 400 })
+
   // Json? fields need Prisma.DbNull to clear (plain JS null is rejected).
   const familyTree =
     body.familyTree === undefined
