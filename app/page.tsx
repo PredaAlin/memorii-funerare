@@ -60,6 +60,30 @@ const TESTIMONIALS = [
   { quote: 'M-a ajutat să găsesc cuvintele potrivite când eram copleșit de durere. E mai mult decât un produs; e un serviciu pentru suflet.', author: 'Daniela Popa', location: 'TM' },
 ]
 
+const STEPS = [
+  {
+    title: 'Comandă placa',
+    body: 'Alegi un plan și primești placa gravată cu cod QR, gata de montat pe piatra funerară.',
+    icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-14L4 7m8 4v10M4 7v10l8 4" /></svg>
+    ),
+  },
+  {
+    title: 'Construiește pagina',
+    body: 'Adaugi fotografii, povești și videoclipuri într-un editor simplu, direct de pe telefon.',
+    icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.5-4.5a2 2 0 012.8 0L16 16m-2-2l1.5-1.5a2 2 0 012.8 0L20 14" /><circle cx="9" cy="9" r="1.3" /></svg>
+    ),
+  },
+  {
+    title: 'Scanează și amintește-ți',
+    body: 'Oricine scanează codul intră în galeria unei vieți bine trăite, fără să descarce nimic.',
+    icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8V5a1 1 0 011-1h3M17 4h3a1 1 0 011 1v3M21 16v3a1 1 0 01-1 1h-3M7 20H4a1 1 0 01-1-1v-3M8 8h3v3H8V8zm5 5h3v3h-3v-3z" /></svg>
+    ),
+  },
+]
+
 export default function HomePage() {
   return (
     <div className="flex flex-col">
@@ -121,6 +145,26 @@ export default function HomePage() {
               ))}
             </ul>
           </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how" className="py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto text-center mb-16">
+          <h2 className="text-4xl font-bold serif text-stone-900 mb-4">Cum Funcționează</h2>
+          <div className="w-24 h-1 bg-amber-600 mx-auto rounded-full"></div>
+        </div>
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
+          {STEPS.map((step, idx) => (
+            <div key={idx} className="p-8 rounded-3xl bg-stone-50 border border-stone-100 flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 mb-6">
+                {step.icon}
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-amber-700 mb-2">{String(idx + 1).padStart(2, '0')}</span>
+              <h3 className="text-xl font-bold serif text-stone-900 mb-3">{step.title}</h3>
+              <p className="text-stone-600 leading-relaxed text-sm">{step.body}</p>
+            </div>
+          ))}
         </div>
       </section>
 
