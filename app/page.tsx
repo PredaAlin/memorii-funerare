@@ -62,8 +62,8 @@ const TESTIMONIALS = [
 
 const STEPS = [
   {
-    title: 'Comandă placa',
-    body: 'Alegi un plan și primești placa gravată cu cod QR, gata de montat pe piatra funerară.',
+    title: 'Alege un plan',
+    body: 'Alegi planul potrivit și începi comanda pentru placa memorială.',
     icon: (
       <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-14L4 7m8 4v10M4 7v10l8 4" /></svg>
     ),
@@ -76,8 +76,8 @@ const STEPS = [
     ),
   },
   {
-    title: 'Scanează și amintește-ți',
-    body: 'Oricine scanează codul intră în galeria unei vieți bine trăite, fără să descarce nimic.',
+    title: 'Primești placa și se scanează',
+    body: 'Îți trimitem placa gravată, gata de montat. Oricine o scanează intră în galeria unei vieți.',
     icon: (
       <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8V5a1 1 0 011-1h3M17 4h3a1 1 0 011 1v3M21 16v3a1 1 0 01-1 1h-3M7 20H4a1 1 0 01-1-1v-3M8 8h3v3H8V8zm5 5h3v3h-3v-3z" /></svg>
     ),
