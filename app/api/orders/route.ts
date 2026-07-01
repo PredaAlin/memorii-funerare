@@ -9,6 +9,7 @@ import { buildOrderEmailData, sendPaymentConfirmation, sendAdminNewOrder } from 
 import { CartItem, ShippingInfo } from '@/types'
 import { PLAN_PRICES, isValidPlan } from '@/lib/pricing'
 import { memorialTextError, mediaUrlsError, singleMediaUrlError, familyTreeError, LIMITS } from '@/lib/validation'
+import { rateLimit } from '@/lib/rateLimit'
 
 // Convert a base64 data URL to a Vercel Blob URL
 async function uploadIfBase64(dataUrl: string, folder: string): Promise<string> {
@@ -28,6 +29,15 @@ async function uploadIfBase64(dataUrl: string, folder: string): Promise<string> 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // M2: throttle order creation per user (esp. ramburs, which publishes a
+  // memorial with no payment). Best-effort in-memory guard.
+  if (!rateLimit(`order:${session.user.id}`, 10, 10 * 60_000)) {
+    return NextResponse.json(
+      { error: 'Prea multe comenzi într-un timp scurt. Încearcă din nou în câteva minute.' },
+      { status: 429 }
+    )
+  }
 
   const { cart, shippingInfo, paymentMethod = 'card' }: { cart: CartItem[]; shippingInfo: ShippingInfo; paymentMethod?: string } = await req.json()
 
